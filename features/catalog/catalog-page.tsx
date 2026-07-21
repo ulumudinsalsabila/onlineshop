@@ -33,7 +33,7 @@ async function CatalogPageContent({ config, pathname, searchParams }: CatalogRou
   const resolvedQuery = { ...query, page: response.page };
   const queryKey = queryToSearchParams(resolvedQuery).toString() || "all";
   const suggestions = [...response.items, ...response.recommendations].flatMap((product) => [product.name, product.brand, product.category]);
-  const heading = config.searchMode && query.q ? `Hasil untuk “${query.q}”` : config.title;
+  const heading = config.searchMode && query.q ? `Results for “${query.q}”` : config.title;
 
   return (
     <div className="pb-(--space-section)">
@@ -61,10 +61,10 @@ async function CatalogPageContent({ config, pathname, searchParams }: CatalogRou
               </div>
             ) : (
               <>
-                <CatalogEmptyState action={<Button asChild variant="outline"><Link href={pathname}>Reset pencarian</Link></Button>} />
+                <CatalogEmptyState action={<Button asChild variant="outline"><Link href={pathname}>Reset search</Link></Button>} />
                 {response.recommendations.length ? (
                   <section className="mt-14" aria-labelledby="recommendations-title">
-                    <div className="flex items-end justify-between gap-5"><div><p className="text-[0.625rem] font-semibold tracking-[0.16em] text-muted-foreground uppercase">You may also like</p><h2 id="recommendations-title" className="mt-2 font-serif text-3xl">Pilihan yang sedang diminati</h2></div><Link href="/products" className="hidden items-center gap-2 text-xs font-semibold tracking-wider uppercase sm:flex">View all <ArrowRightIcon aria-hidden /></Link></div>
+                    <div className="flex items-end justify-between gap-5"><div><p className="text-[0.625rem] font-semibold tracking-[0.16em] text-muted-foreground uppercase">You may also like</p><h2 id="recommendations-title" className="mt-2 font-serif text-3xl">Pieces currently in demand</h2></div><Link href="/products" className="hidden items-center gap-2 text-xs font-semibold tracking-wider uppercase sm:flex">View all <ArrowRightIcon aria-hidden /></Link></div>
                     <div className="mt-7 grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 xl:grid-cols-4">{response.recommendations.map((product) => <ProductCard key={product.id} product={product} />)}</div>
                   </section>
                 ) : null}

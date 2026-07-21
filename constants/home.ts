@@ -3,16 +3,16 @@ import type { HomeCategory, StoreProduct, Testimonial } from "@/types/storefront
 export const heroContent = {
   eyebrow: "The New Modern · 2026",
   title: "Quiet confidence, beautifully carried.",
-  description: "Siluet terkurasi, material berkarakter, dan detail yang terasa personal—untuk gaya yang bertahan melampaui musim.",
+  description: "Curated silhouettes, expressive materials, and details that feel personal—for a wardrobe that lasts beyond the season.",
   image: "/images/home/hero-home.png",
 };
 
 export const homeCategories: HomeCategory[] = [
-  { label: "Bags", href: "/category/bags", image: "/images/storefront/mega-menu-campaign.png", description: "Struktur ikonis untuk setiap ritme." },
-  { label: "Shoes", href: "/category/shoes", image: "/images/storefront/product-slingback.png", description: "Langkah ringan, garis yang refined." },
-  { label: "Accessories", href: "/category/accessories", image: "/images/storefront/product-silk-scarf.png", description: "Detail kecil dengan karakter besar." },
-  { label: "Men", href: "/category/men", image: "/images/home/featured-men.png", description: "Essentials dengan presisi modern." },
-  { label: "Preloved", href: "/preloved", image: "/images/home/preloved-burgundy-main.png", description: "Kisah istimewa, siap dilanjutkan." },
+  { label: "Bags", href: "/category/bags", image: "/images/storefront/mega-menu-campaign.png", description: "Iconic structure for every rhythm." },
+  { label: "Shoes", href: "/category/shoes", image: "/images/storefront/product-slingback.png", description: "Light steps, refined lines." },
+  { label: "Accessories", href: "/category/accessories", image: "/images/storefront/product-silk-scarf.png", description: "Small details with a distinct presence." },
+  { label: "Men", href: "/category/men", image: "/images/home/featured-men.png", description: "Essentials with modern precision." },
+  { label: "Preloved", href: "/preloved", image: "/images/home/preloved-burgundy-main.png", description: "Remarkable stories, ready to continue." },
 ];
 
 export const newArrivals: StoreProduct[] = [
@@ -33,21 +33,21 @@ export const prelovedProducts: StoreProduct[] = [
 export const brands = ["Aster & Row", "Maison Aurelia", "Noémie Studio", "Atelier Serein", "Élan Archive", "Vetra", "Orée", "Lune Form", "Maison Calme", "Studio Nara", "Arden & Vale", "Serein Homme"] as const;
 
 export const testimonials: Testimonial[] = [
-  { id: "t1", name: "Nadia Prameswari", location: "Jakarta", quote: "Kurasi produknya terasa sangat personal. Tas tiba dengan kemasan rapi, detail kondisi akurat, dan prosesnya jauh lebih tenang dari pengalaman belanja luxury saya sebelumnya.", rating: 5 },
-  { id: "t2", name: "Clara Wijaya", location: "Surabaya", quote: "Saya suka transparansi untuk koleksi preloved. Foto dan condition notes sesuai, sementara tim care memberi update di setiap tahap autentikasi.", rating: 5 },
-  { id: "t3", name: "Raka Mahendra", location: "Bandung", quote: "Navigasinya sederhana dan pengirimannya cepat. Gift yang saya pilih terasa istimewa bahkan sebelum kotaknya dibuka.", rating: 5 },
+  { id: "t1", name: "Nadia Prameswari", location: "Jakarta", quote: "The curation feels genuinely personal. My bag arrived beautifully packed, the condition notes were accurate, and the entire experience felt effortless.", rating: 5 },
+  { id: "t2", name: "Clara Wijaya", location: "Surabaya", quote: "I appreciate the transparency of the preloved collection. The photographs and condition notes were precise, with thoughtful updates throughout authentication.", rating: 5 },
+  { id: "t3", name: "Raka Mahendra", location: "Bandung", quote: "The navigation is simple and delivery was quick. The gift felt special before the box was even opened.", rating: 5 },
 ];
 
 export const guaranteeItems = [
-  { icon: "inspect", title: "Pemeriksaan Menyeluruh", description: "Setiap detail material, hardware, dan konstruksi diperiksa oleh tim terlatih." },
-  { icon: "authentic", title: "Jaminan Keaslian", description: "Produk preloved disertai hasil autentikasi dan perlindungan pembelian." },
-  { icon: "secure", title: "Transaksi Aman", description: "Pembayaran terenkripsi dan data pribadi diproses dengan hati-hati." },
-  { icon: "delivery", title: "Pengiriman Terpercaya", description: "Kemasan aman, pelacakan aktif, dan opsi proteksi selama perjalanan." },
+  { icon: "inspect", title: "Thorough Inspection", description: "Every material, hardware, and construction detail is reviewed by our trained team." },
+  { icon: "authentic", title: "Authenticity Guaranteed", description: "Preloved pieces include authentication results and purchase protection." },
+  { icon: "secure", title: "Secure Transactions", description: "Payments are encrypted and personal data is handled with care." },
+  { icon: "delivery", title: "Trusted Delivery", description: "Secure packaging, active tracking, and protection options throughout the journey." },
 ] as const;
 
 export const shoppingSteps = [
-  { number: "01", title: "Pilih produk", description: "Temukan pilihan melalui koleksi, kategori, atau pencarian." },
-  { number: "02", title: "Checkout", description: "Konfirmasi item, alamat, dan opsi pengiriman yang sesuai." },
-  { number: "03", title: "Pembayaran", description: "Bayar melalui kanal terpercaya dengan konfirmasi langsung." },
-  { number: "04", title: "Pengiriman", description: "Pantau perjalanan pesanan hingga tiba dengan aman." },
+  { number: "01", title: "Choose your piece", description: "Explore through collections, categories, or search." },
+  { number: "02", title: "Checkout", description: "Confirm your items, address, and preferred delivery option." },
+  { number: "03", title: "Payment", description: "Pay through trusted channels with immediate confirmation." },
+  { number: "04", title: "Delivery", description: "Follow your order until it arrives safely." },
 ] as const;

@@ -33,19 +33,19 @@ export function ProductCard({ product }: { product: StoreProduct }) {
 
   function toggleWishlist() {
     const next = toggleWishlistItem(commerceId);
-    toast(next ? "Ditambahkan ke wishlist" : "Dihapus dari wishlist", { description: product.name });
+    toast(next ? "Added to wishlist" : "Removed from wishlist", { description: product.name });
   }
 
   function quickAdd() {
     const added = addToCart(commerceId, { product });
-    if (added) toast.success("Ditambahkan ke shopping bag", { description: product.name });
-    else toast.error("Produk sedang tidak tersedia", { description: product.name });
+    if (added) toast.success("Added to shopping bag", { description: product.name });
+    else toast.error("This product is currently unavailable", { description: product.name });
   }
 
   return (
     <article className="group min-w-0">
       <div className="relative overflow-hidden bg-secondary">
-        <Link href={`/products/${product.slug}`} prefetch={false} aria-label={`Lihat ${product.name}`} className="relative block aspect-[4/5] overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring">
+        <Link href={`/products/${product.slug}`} prefetch={false} aria-label={`View ${product.name}`} className="relative block aspect-[4/5] overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring">
           {!isLoaded ? <Skeleton className="absolute inset-0 z-10 size-full rounded-none" /> : null}
           <Image
             src={product.image}
@@ -75,7 +75,7 @@ export function ProductCard({ product }: { product: StoreProduct }) {
 
         <m.button
           type="button"
-          aria-label={isWishlisted ? `Hapus ${product.name} dari wishlist` : `Tambahkan ${product.name} ke wishlist`}
+          aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
           aria-pressed={isWishlisted}
           onClick={toggleWishlist}
           animate={{ scale: isWishlisted ? [1, 1.18, 1] : 1 }}

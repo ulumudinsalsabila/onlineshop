@@ -36,7 +36,7 @@ export function CartPage() {
       <StorefrontBreadcrumb items={[{ label: "Home", href: "/" }, { label: "Shopping Bag" }]} />
       <div className="mt-8 flex items-end justify-between gap-5"><div><p className="text-[0.625rem] font-semibold tracking-[0.18em] text-muted-foreground uppercase">Your selection</p><h1 className="mt-2 font-serif text-(length:--text-heading-1)">Shopping bag</h1></div><p className="text-sm text-muted-foreground">{cartCount} item</p></div>
 
-      {!cartLines.length ? <EmptyState icon={ShoppingBagIcon} className="mt-10 min-h-[28rem]" title="Your bag is empty" description="Koleksi kami siap dijelajahi ketika Anda menemukan piece berikutnya." action={<Button asChild><Link href="/products">Explore products</Link></Button>} /> : (
+      {!cartLines.length ? <EmptyState icon={ShoppingBagIcon} className="mt-10 min-h-[28rem]" title="Your bag is empty" description="Our collection is ready whenever you are looking for your next piece." action={<Button asChild><Link href="/products">Explore products</Link></Button>} /> : (
         <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_23rem] xl:gap-16">
           <div>
             <AnimatePresence initial={false}>
@@ -48,11 +48,11 @@ export function CartPage() {
                       <div><p className="text-[0.625rem] font-semibold tracking-wider text-muted-foreground uppercase">{line.product.brand}</p><Link href={`/products/${line.product.slug}`} className="mt-1 block font-serif text-xl leading-tight sm:text-2xl">{line.product.name}</Link><p className="mt-2 text-xs capitalize text-muted-foreground">{line.color} · {line.size}</p></div>
                       <Price amount={line.lineTotal} className="hidden shrink-0 text-sm sm:flex" />
                     </div>
-                    {!line.canCheckout ? <p className="mt-3 flex items-center gap-1.5 text-xs text-destructive"><WarningCircleIcon aria-hidden /> Produk sold out atau stok berubah. Hapus item untuk melanjutkan checkout.</p> : null}
+                    {!line.canCheckout ? <p className="mt-3 flex items-center gap-1.5 text-xs text-destructive"><WarningCircleIcon aria-hidden /> This piece is sold out or its stock has changed. Remove it to continue.</p> : null}
                     <div className="mt-auto flex flex-wrap items-end justify-between gap-4 pt-5">
-                      <div className="flex h-10 items-center border border-border"><button type="button" aria-label={`Kurangi quantity ${line.product.name}`} onClick={() => updateQuantity(line.id, line.quantity - 1)} className="grid size-10 place-items-center"><MinusIcon aria-hidden /></button><m.span key={line.quantity} initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }} className="min-w-8 text-center text-sm">{line.quantity}</m.span><button type="button" aria-label={`Tambah quantity ${line.product.name}`} disabled={line.quantity >= line.availableStock} onClick={() => updateQuantity(line.id, line.quantity + 1)} className="grid size-10 place-items-center disabled:opacity-35"><PlusIcon aria-hidden /></button></div>
+                      <div className="flex h-10 items-center border border-border"><button type="button" aria-label={`Decrease quantity for ${line.product.name}`} onClick={() => updateQuantity(line.id, line.quantity - 1)} className="grid size-10 place-items-center"><MinusIcon aria-hidden /></button><m.span key={line.quantity} initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }} className="min-w-8 text-center text-sm">{line.quantity}</m.span><button type="button" aria-label={`Increase quantity for ${line.product.name}`} disabled={line.quantity >= line.availableStock} onClick={() => updateQuantity(line.id, line.quantity + 1)} className="grid size-10 place-items-center disabled:opacity-35"><PlusIcon aria-hidden /></button></div>
                       <Price amount={line.lineTotal} className="text-sm sm:hidden" />
-                      <div className="flex gap-4 text-xs"><button type="button" onClick={() => { moveCartItemToWishlist(line.id); toast.success("Dipindahkan ke wishlist"); }} className="inline-flex items-center gap-1.5 underline-offset-4 hover:underline"><HeartIcon aria-hidden /> Move to wishlist</button><button type="button" onClick={() => removeFromCart(line.id)} className="inline-flex items-center gap-1.5 text-destructive underline-offset-4 hover:underline"><TrashIcon aria-hidden /> Remove</button></div>
+                      <div className="flex gap-4 text-xs"><button type="button" onClick={() => { moveCartItemToWishlist(line.id); toast.success("Moved to wishlist"); }} className="inline-flex items-center gap-1.5 underline-offset-4 hover:underline"><HeartIcon aria-hidden /> Move to wishlist</button><button type="button" onClick={() => removeFromCart(line.id)} className="inline-flex items-center gap-1.5 text-destructive underline-offset-4 hover:underline"><TrashIcon aria-hidden /> Remove</button></div>
                     </div>
                   </div>
                 </m.article>
@@ -60,22 +60,22 @@ export function CartPage() {
             </AnimatePresence>
           </div>
 
-          <aside className="h-fit border border-border bg-secondary/25 p-6 lg:sticky lg:top-44" aria-label="Ringkasan belanja">
+          <aside className="h-fit border border-border bg-secondary/25 p-6 lg:sticky lg:top-44" aria-label="Order summary">
             <h2 className="font-serif text-2xl">Order summary</h2>
             <div className="mt-6 border-b border-border pb-6">
               <Label htmlFor="voucher" className="text-[0.625rem] tracking-wider uppercase">Voucher</Label>
-              <div className="mt-2 flex gap-2"><Input id="voucher" value={voucherInput} onChange={(event) => setVoucherInput(event.target.value)} placeholder="Try ELAN10" className="bg-background" /><Button variant="outline" onClick={() => { const normalized = voucherInput.trim().toUpperCase(); setVoucher(normalized); toast(normalized === VOUCHER_CODE ? "Voucher applied" : "Voucher tidak dikenali"); }}><TagIcon aria-hidden /> Apply</Button></div>
-              {voucher && !totals.voucherApplied ? <p className="mt-2 text-xs text-destructive">Kode voucher tidak valid.</p> : null}
+              <div className="mt-2 flex gap-2"><Input id="voucher" value={voucherInput} onChange={(event) => setVoucherInput(event.target.value)} placeholder="Try ELAN10" className="bg-background" /><Button variant="outline" onClick={() => { const normalized = voucherInput.trim().toUpperCase(); setVoucher(normalized); toast(normalized === VOUCHER_CODE ? "Voucher applied" : "Voucher not recognised"); }}><TagIcon aria-hidden /> Apply</Button></div>
+              {voucher && !totals.voucherApplied ? <p className="mt-2 text-xs text-destructive">Invalid voucher code.</p> : null}
             </div>
             <div className="border-b border-border py-6">
               <Label htmlFor="postal-code" className="text-[0.625rem] tracking-wider uppercase">Estimate shipping</Label>
-              <div className="mt-2 flex gap-2"><Input id="postal-code" inputMode="numeric" value={postalCode} onChange={(event) => setPostalCode(event.target.value.replace(/\D/g, "").slice(0, 5))} placeholder="Kode pos" className="bg-background" /><Button variant="outline" onClick={() => setShippingEstimate(postalCode.length === 5 ? "Estimasi tiba 2–4 hari kerja" : "Masukkan 5 digit kode pos")}>Check</Button></div>
+              <div className="mt-2 flex gap-2"><Input id="postal-code" inputMode="numeric" value={postalCode} onChange={(event) => setPostalCode(event.target.value.replace(/\D/g, "").slice(0, 5))} placeholder="Postal code" className="bg-background" /><Button variant="outline" onClick={() => setShippingEstimate(postalCode.length === 5 ? "Estimated delivery in 2–4 business days" : "Enter a five-digit postal code")}>Check</Button></div>
               {shippingEstimate ? <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground"><TruckIcon aria-hidden /> {shippingEstimate}</p> : null}
             </div>
             <dl className="space-y-3 py-6 text-sm"><SummaryRow label="Subtotal" value={formatIDR(totals.subtotal)} /><SummaryRow label="Discount" value={totals.discount ? `−${formatIDR(totals.discount)}` : formatIDR(0)} accent={totals.discount > 0} /><SummaryRow label="Estimated shipping" value={totals.shipping ? formatIDR(totals.shipping) : "Complimentary"} /><div className="flex items-center justify-between border-t border-border pt-4 font-semibold"><dt>Grand total</dt><dd className="font-serif text-xl">{formatIDR(totals.grandTotal)}</dd></div></dl>
-            {hasUnavailable ? <div className="mb-4 flex gap-2 bg-destructive/8 p-3 text-xs leading-5 text-destructive"><WarningCircleIcon className="mt-0.5 shrink-0" aria-hidden /> Hapus item yang tidak tersedia sebelum checkout.</div> : null}
+            {hasUnavailable ? <div className="mb-4 flex gap-2 bg-destructive/8 p-3 text-xs leading-5 text-destructive"><WarningCircleIcon className="mt-0.5 shrink-0" aria-hidden /> Remove unavailable items before checkout.</div> : null}
             {hasUnavailable ? <Button size="lg" className="w-full" disabled>Checkout unavailable</Button> : <Button asChild size="lg" className="w-full"><Link href="/checkout" prefetch={false}>Proceed to checkout</Link></Button>}
-            <p className="mt-4 text-center text-xs leading-5 text-muted-foreground">Total dihitung ulang dari harga dan stok katalog saat ini.</p>
+            <p className="mt-4 text-center text-xs leading-5 text-muted-foreground">Totals are recalculated using current catalogue prices and stock.</p>
           </aside>
         </div>
       )}

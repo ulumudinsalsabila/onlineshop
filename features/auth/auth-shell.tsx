@@ -9,11 +9,11 @@ export function AuthShell({ eyebrow, title, description, children }: { eyebrow: 
     <main id="main-content" className="grid min-h-svh bg-background lg:grid-cols-[0.9fr_1.1fr]">
       <section className="flex items-center px-(--container-gutter) py-14">
         <div className="mx-auto w-full max-w-md">
-          <Link href="/" aria-label="IVORY, beranda"><Logo /></Link>
+          <Link href="/" aria-label="IVORY, home"><Logo /></Link>
           <p className="mt-14 text-[0.625rem] font-semibold tracking-[0.18em] text-muted-foreground uppercase">{eyebrow}</p>
           <h1 className="mt-3 font-serif text-(length:--text-heading-1) leading-[0.95]">{title}</h1>
           <p className="mt-5 text-sm leading-7 text-muted-foreground">{description}</p>
-          {isMockDataMode ? <p role="status" className="mt-6 border border-accent/40 bg-accent/10 px-4 py-3 text-xs leading-5 text-muted-foreground">Storefront sedang berjalan dalam demo mode tanpa database. Authentication dan fitur transaksi akan aktif setelah PostgreSQL dikonfigurasi.</p> : null}
+          {isMockDataMode ? <p role="status" className="mt-6 border border-accent/40 bg-accent/10 px-4 py-3 text-xs leading-5 text-muted-foreground">The storefront is running in database-free demo mode. Authentication and transactional features become available once PostgreSQL is configured.</p> : null}
           {children}
         </div>
       </section>

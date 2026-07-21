@@ -7,10 +7,10 @@ import { PrismaClient, ProductCondition, ProductStatus, UserRole } from "../gene
 import { hashPassword } from "../lib/security/password";
 
 const databaseUrl = process.env.DATABASE_URL;
-if (!databaseUrl) throw new Error("DATABASE_URL wajib diisi sebelum menjalankan seed.");
+if (!databaseUrl) throw new Error("DATABASE_URL is required before running the seed.");
 const adminPassword = process.env.SEED_ADMIN_PASSWORD;
 const customerPassword = process.env.SEED_CUSTOMER_PASSWORD;
-if (!adminPassword || !customerPassword) throw new Error("SEED_ADMIN_PASSWORD dan SEED_CUSTOMER_PASSWORD wajib diisi. Password demo tidak ditanam di source code.");
+if (!adminPassword || !customerPassword) throw new Error("SEED_ADMIN_PASSWORD and SEED_CUSTOMER_PASSWORD are required. Demo passwords are never embedded in source code.");
 
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: databaseUrl }) });
 
@@ -31,7 +31,8 @@ async function main() {
 
   const categories = new Map<string, string>();
   for (const [name, slug] of categorySeeds) {
-    const category = await prisma.category.upsert({ where: { slug }, update: { name, isActive: true }, create: { name, slug, description: `Koleksi ${name.toLowerCase()} yang dikurasi.` } });
+    const categoryDescription = `A curated ${name.toLowerCase()} collection.`;
+    const category = await prisma.category.upsert({ where: { slug }, update: { name, description: categoryDescription, isActive: true }, create: { name, slug, description: categoryDescription } });
     categories.set(slug, category.id);
   }
   const brands = [];
@@ -44,10 +45,10 @@ async function main() {
     const condition = source.conditionType === "preloved" ? ProductCondition.PRELOVED : ProductCondition.NEW;
     const product = await prisma.product.upsert({
       where: { slug: source.slug },
-      update: { name: source.name, price: source.price, compareAtPrice: source.compareAt, status: ProductStatus.ACTIVE, condition, brandId: brand.id, categoryId: categories.get(categorySlug)! },
+      update: { name: source.name, description: `${source.name} was selected for the IVORY collection with a focus on material, proportion, and function.`, price: source.price, compareAtPrice: source.compareAt, flawNotes: condition === ProductCondition.PRELOVED ? "Light signs of wear as documented." : null, status: ProductStatus.ACTIVE, condition, brandId: brand.id, categoryId: categories.get(categorySlug)! },
       create: {
-        slug: source.slug, baseSku: `IV-${String(index + 1).padStart(4, "0")}`, name: source.name, shortDescription: `${source.brand} — ${source.category}`, description: `${source.name} dipilih untuk koleksi IVORY dengan fokus pada material, proporsi, dan fungsi.`,
-        price: source.price, compareAtPrice: source.compareAt, condition, conditionLabel: source.condition, completeness: condition === ProductCondition.PRELOVED ? "Product with dust bag" : null, flawNotes: condition === ProductCondition.PRELOVED ? "Tanda pemakaian ringan sesuai dokumentasi." : null, authenticationStatus: condition === ProductCondition.PRELOVED ? "Authenticated" : null,
+        slug: source.slug, baseSku: `IV-${String(index + 1).padStart(4, "0")}`, name: source.name, shortDescription: `${source.brand} — ${source.category}`, description: `${source.name} was selected for the IVORY collection with a focus on material, proportion, and function.`,
+        price: source.price, compareAtPrice: source.compareAt, condition, conditionLabel: source.condition, completeness: condition === ProductCondition.PRELOVED ? "Product with dust bag" : null, flawNotes: condition === ProductCondition.PRELOVED ? "Light signs of wear as documented." : null, authenticationStatus: condition === ProductCondition.PRELOVED ? "Authenticated" : null,
         status: ProductStatus.ACTIVE, isFeatured: index < 8, isNewArrival: index < 10, publishedAt: new Date(), brandId: brand.id, categoryId: categories.get(categorySlug)!, material: "Premium leather and considered hardware", origin: "Responsibly sourced",
         images: { create: [{ url: source.image, alt: source.name, width: 1254, height: 1254, isPrimary: true, sortOrder: 0 }, { url: source.hoverImage, alt: `${source.name} alternate view`, width: 1254, height: 1254, sortOrder: 1 }] },
         variants: { create: [{ sku: `IV-${String(index + 1).padStart(4, "0")}-01`, name: [source.colors[0], source.sizes[0]].filter(Boolean).join(" / ") || "Default", color: source.colors[0], size: source.sizes[0], inventory: { create: { quantity: source.soldOut ? 0 : source.stock } } }] },
@@ -57,11 +58,12 @@ async function main() {
     seededProducts.push(product);
   }
 
-  await prisma.banner.upsert({ where: { id: "seed-home-hero" }, update: {}, create: { id: "seed-home-hero", name: "The New Modern", placement: "HOME_HERO", eyebrow: "The New Modern · 2026", title: "Quiet confidence, beautifully carried.", body: "Siluet terkurasi, material berkarakter, dan detail yang terasa personal.", imageUrl: "/images/home/hero-home.png", imageAlt: "Model mengenakan tailoring ivory", href: "/new-arrivals", ctaLabel: "Shop now", isActive: true } });
+  const heroBanner = { name: "The New Modern", placement: "HOME_HERO" as const, eyebrow: "The New Modern · 2026", title: "Quiet confidence, beautifully carried.", body: "Curated silhouettes, expressive materials, and details that feel personal.", imageUrl: "/images/home/hero-home.png", imageAlt: "Model wearing ivory tailoring", href: "/new-arrivals", ctaLabel: "Shop now", isActive: true };
+  await prisma.banner.upsert({ where: { id: "seed-home-hero" }, update: heroBanner, create: { id: "seed-home-hero", ...heroBanner } });
   const testimonialData = [
-    ["Alya S.", "Jakarta", "Kurasi produknya terasa personal dan proses belanjanya sangat tenang."],
-    ["Marcella T.", "Surabaya", "Kondisi produk preloved dijelaskan transparan dan pengemasannya istimewa."],
-    ["Dina R.", "Bandung", "Detail autentikasi membuat saya nyaman memilih tas yang sudah lama dicari."],
+    ["Alya S.", "Jakarta", "The product curation feels personal and the shopping experience is wonderfully calm."],
+    ["Marcella T.", "Surabaya", "The preloved condition was explained transparently and the packaging felt exceptional."],
+    ["Dina R.", "Bandung", "The authentication details gave me confidence to choose a bag I had wanted for years."],
   ] as const;
   await prisma.testimonial.deleteMany({ where: { id: { startsWith: "seed-testimonial-" } } });
   await prisma.testimonial.createMany({ data: testimonialData.map(([name, location, quote], index) => ({ id: `seed-testimonial-${index + 1}`, name, location, quote, rating: 5, sortOrder: index })) });

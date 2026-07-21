@@ -70,7 +70,7 @@ function DialogContent({
         {showCloseButton && (
           <DialogPrimitive.Close data-slot="dialog-close" asChild>
             <Button
-              aria-label="Tutup dialog"
+              aria-label="Close dialog"
               variant="ghost"
               className="absolute top-2 right-2"
               size="icon-sm"

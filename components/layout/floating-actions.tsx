@@ -26,7 +26,7 @@ export function FloatingActions() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             type="button"
-            aria-label="Kembali ke atas"
+            aria-label="Back to top"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="grid size-11 place-items-center rounded-full border border-border bg-background text-foreground shadow-soft transition-colors hover:bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
@@ -34,7 +34,7 @@ export function FloatingActions() {
           </m.button>
         ) : null}
       </AnimatePresence>
-      <a href={contactDetails.whatsapp} target="_blank" rel="noreferrer" aria-label="Hubungi kami melalui WhatsApp" className="group flex h-12 items-center gap-0 overflow-hidden rounded-full bg-[#315c4a] px-3.5 text-white shadow-lifted transition-[gap,padding,background-color] hover:gap-2 hover:bg-[#284d3d] sm:hover:px-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+      <a href={contactDetails.whatsapp} target="_blank" rel="noreferrer" aria-label="Contact us on WhatsApp" className="group flex h-12 items-center gap-0 overflow-hidden rounded-full bg-[#315c4a] px-3.5 text-white shadow-lifted transition-[gap,padding,background-color] hover:gap-2 hover:bg-[#284d3d] sm:hover:px-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
         <WhatsappLogoIcon size={23} weight="fill" aria-hidden />
         <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs font-semibold tracking-wider uppercase opacity-0 transition-[max-width,opacity] group-hover:max-w-24 group-hover:opacity-100">Need help?</span>
       </a>

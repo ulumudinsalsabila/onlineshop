@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 export function LoadingState({ rows = 3, className }: { rows?: number; className?: string }) {
   return (
     <div className={cn("grid gap-4", className)} role="status" aria-live="polite">
-      <span className="sr-only">Memuat konten…</span>
+      <span className="sr-only">Loading content…</span>
       {Array.from({ length: rows }, (_, index) => (
         <div key={index} className="space-y-3 border border-border bg-card p-4">
           <Skeleton className="aspect-[4/3] w-full rounded-sm" />

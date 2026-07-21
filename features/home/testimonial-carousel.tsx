@@ -19,7 +19,7 @@ export function TestimonialCarousel({ testimonials }: { testimonials: Testimonia
 
   return (
     <div className="mx-auto max-w-4xl text-center">
-      <div className="mb-8 flex justify-center gap-1 text-accent-foreground" aria-label={`${testimonial.rating} dari 5 bintang`}>
+      <div className="mb-8 flex justify-center gap-1 text-accent-foreground" aria-label={`${testimonial.rating} out of 5 stars`}>
         {Array.from({ length: testimonial.rating }, (_, index) => <StarIcon key={index} size={17} weight="fill" aria-hidden />)}
       </div>
       <div className="min-h-56 sm:min-h-48">
@@ -31,9 +31,9 @@ export function TestimonialCarousel({ testimonials }: { testimonials: Testimonia
         </AnimatePresence>
       </div>
       <div className="mt-8 flex items-center justify-center gap-4">
-        <IconButton aria-label="Testimoni sebelumnya" variant="outline" onClick={() => move(-1)}><ArrowLeftIcon aria-hidden /></IconButton>
+        <IconButton aria-label="Testimoni sebelumnya" variant="outline" onClick={() => move(-1)}><ArrowLeftIcon aria-hidden className="text-primary" /></IconButton>
         <span className="min-w-16 text-xs tabular-nums text-muted-foreground">{String(active + 1).padStart(2, "0")} / {String(testimonials.length).padStart(2, "0")}</span>
-        <IconButton aria-label="Testimoni berikutnya" variant="outline" onClick={() => move(1)}><ArrowRightIcon aria-hidden /></IconButton>
+        <IconButton aria-label="Testimoni berikutnya" variant="outline" onClick={() => move(1)}><ArrowRightIcon aria-hidden className="text-primary" /></IconButton>
       </div>
     </div>
   );

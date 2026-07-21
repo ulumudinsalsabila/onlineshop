@@ -13,7 +13,7 @@ export class BiteshipProvider implements ShippingProvider {
     const payload = await response.json() as { pricing?: BiteshipRate[] };
     return (payload.pricing ?? []).map((rate): ShippingQuote => {
       const range = (rate.shipment_duration_range ?? rate.duration ?? "2-5").match(/\d+/g)?.map(Number) ?? [2, 5];
-      return { provider: this.name, courierCode: rate.courier_code, courierName: rate.courier_name, serviceCode: rate.courier_service_code, serviceName: rate.courier_service_name, cost: rate.price, estimateMinDays: range[0], estimateMaxDays: range[1] ?? range[0], estimateLabel: rate.duration ?? `${range[0]}-${range[1] ?? range[0]} hari` };
+      return { provider: this.name, courierCode: rate.courier_code, courierName: rate.courier_name, serviceCode: rate.courier_service_code, serviceName: rate.courier_service_name, cost: rate.price, estimateMinDays: range[0], estimateMaxDays: range[1] ?? range[0], estimateLabel: rate.duration ?? `${range[0]}-${range[1] ?? range[0]} days` };
     });
   }
 
@@ -21,6 +21,6 @@ export class BiteshipProvider implements ShippingProvider {
     const response = await fetch(`${env.BITESHIP_BASE_URL}/trackings/${encodeURIComponent(input.trackingNumber)}/couriers/${encodeURIComponent(input.courierCode)}`, { headers: { Authorization: this.apiKey }, cache: "no-store" });
     if (!response.ok) throw new Error(`BITESHIP_TRACKING_${response.status}`);
     const payload = await response.json() as { status?: string; history?: { status?: string; note?: string; updated_at?: string }[] };
-    return { trackingNumber: input.trackingNumber, status: payload.status ?? "UNKNOWN", events: (payload.history ?? []).map((event) => ({ status: event.status ?? "UNKNOWN", note: event.note ?? "Pembaruan pengiriman", occurredAt: event.updated_at ?? new Date().toISOString() })) };
+    return { trackingNumber: input.trackingNumber, status: payload.status ?? "UNKNOWN", events: (payload.history ?? []).map((event) => ({ status: event.status ?? "UNKNOWN", note: event.note ?? "Shipping update", occurredAt: event.updated_at ?? new Date().toISOString() })) };
   }
 }

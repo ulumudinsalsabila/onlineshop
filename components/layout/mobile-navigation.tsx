@@ -25,12 +25,12 @@ export function MobileNavigation({ open, onOpenChange, onSearch, cartCount, wish
       <SheetContent side="left" className="w-[min(92vw,25rem)] gap-0 sm:max-w-md">
         <SheetHeader className="border-b border-border px-5 py-5 text-left">
           <SheetTitle><Logo /></SheetTitle>
-          <SheetDescription className="sr-only">Navigasi utama toko</SheetDescription>
+          <SheetDescription className="sr-only">Main store navigation</SheetDescription>
         </SheetHeader>
 
         <div className="border-b border-border p-4">
           <Button variant="outline" className="w-full justify-start gap-3 normal-case tracking-normal" onClick={() => { onOpenChange(false); onSearch(); }}>
-            <MagnifyingGlassIcon size={18} aria-hidden /> Cari koleksi
+            <MagnifyingGlassIcon size={18} aria-hidden /> Search the collection
           </Button>
         </div>
 

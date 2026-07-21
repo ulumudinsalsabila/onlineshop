@@ -43,16 +43,16 @@ export function SearchOverlay({ open, onOpenChange }: { open: boolean; onOpenCha
         <div className="mx-auto w-full max-w-5xl px-(--container-gutter) py-5 sm:py-9">
           <div className="mb-8 flex items-center justify-between border-b border-border pb-4">
             <div>
-              <DialogTitle className="font-serif text-3xl font-medium sm:text-4xl">Temukan pilihan Anda</DialogTitle>
-              <DialogDescription className="mt-1">Cari koleksi, kategori, atau gaya.</DialogDescription>
+              <DialogTitle className="font-serif text-3xl font-medium sm:text-4xl">Find your next piece</DialogTitle>
+              <DialogDescription className="mt-1">Search collections, categories, or styles.</DialogDescription>
             </div>
-            <Button aria-label="Tutup pencarian" variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
+            <Button aria-label="Close search" variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
               <XIcon size={20} aria-hidden />
             </Button>
           </div>
 
           <form role="search" onSubmit={(event) => event.preventDefault()}>
-            <label htmlFor="site-search" className="sr-only">Cari produk</label>
+            <label htmlFor="site-search" className="sr-only">Search products</label>
             <div className="relative">
               <MagnifyingGlassIcon className="absolute top-1/2 left-0 -translate-y-1/2 text-muted-foreground" size={24} aria-hidden />
               <Input
@@ -60,7 +60,7 @@ export function SearchOverlay({ open, onOpenChange }: { open: boolean; onOpenCha
                 autoFocus
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Coba ‘shoulder bag’ atau ‘silk scarf’"
+                placeholder="Try ‘shoulder bag’ or ‘silk scarf’"
                 className="h-16 rounded-none border-x-0 border-t-0 bg-transparent pr-12 pl-10 font-serif text-xl shadow-none focus-visible:ring-0 sm:text-2xl"
               />
               {query ? (
@@ -73,17 +73,17 @@ export function SearchOverlay({ open, onOpenChange }: { open: boolean; onOpenCha
 
           {!normalizedQuery ? (
             <div className="grid gap-8 py-9 md:grid-cols-2">
-              <SearchTerms title="Pencarian terakhir" values={recent} onChoose={chooseSearch} action={recent.length ? <button type="button" onClick={() => setRecent([])} className="text-xs font-semibold tracking-wider uppercase underline underline-offset-4">Hapus semua</button> : null} />
-              <SearchTerms title="Populer saat ini" values={searchData.popular} onChoose={chooseSearch} />
+              <SearchTerms title="Recent searches" values={recent} onChoose={chooseSearch} action={recent.length ? <button type="button" onClick={() => setRecent([])} className="text-xs font-semibold tracking-wider uppercase underline underline-offset-4">Clear all</button> : null} />
+              <SearchTerms title="Popular now" values={searchData.popular} onChoose={chooseSearch} />
             </div>
           ) : null}
 
           {hasResults ? (
             <section className="border-t border-border py-8" aria-labelledby="suggested-products-title">
               <div className="mb-5 flex items-end justify-between">
-                <h2 id="suggested-products-title" className="font-serif text-2xl font-medium">{normalizedQuery ? `Hasil untuk “${query.trim()}”` : "Suggested products"}</h2>
+                <h2 id="suggested-products-title" className="font-serif text-2xl font-medium">{normalizedQuery ? `Results for “${query.trim()}”` : "Suggested products"}</h2>
                 <Link href={`/search?q=${encodeURIComponent(query)}`} prefetch={false} onClick={() => onOpenChange(false)} className="hidden items-center gap-2 text-xs font-semibold tracking-wider uppercase sm:flex">
-                  Lihat semua <ArrowRightIcon aria-hidden />
+                  View all <ArrowRightIcon aria-hidden />
                 </Link>
               </div>
               <div className="grid gap-5 sm:grid-cols-3">
@@ -102,7 +102,7 @@ export function SearchOverlay({ open, onOpenChange }: { open: boolean; onOpenCha
               </div>
             </section>
           ) : (
-            <EmptyState className="mt-8" title="Belum menemukan yang Anda cari" description="Coba kata yang lebih umum, seperti bags, shoes, atau accessories." action={<Button variant="outline" onClick={() => setQuery("")}>Reset pencarian</Button>} />
+            <EmptyState className="mt-8" title="We could not find what you are looking for" description="Try a broader term, such as bags, shoes, or accessories." action={<Button variant="outline" onClick={() => setQuery("")}>Reset search</Button>} />
           )}
         </div>
       </DialogContent>
@@ -121,7 +121,7 @@ function SearchTerms({ title, values, onChoose, action }: { title: string; value
         <div className="flex flex-wrap gap-2">
           {values.map((value) => <button key={value} type="button" onClick={() => onChoose(value)} className="rounded-full border border-border bg-card px-3.5 py-2 text-sm transition-colors hover:border-foreground/30 hover:bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">{value}</button>)}
         </div>
-      ) : <p className="text-sm text-muted-foreground">Belum ada pencarian terakhir.</p>}
+      ) : <p className="text-sm text-muted-foreground">No recent searches yet.</p>}
     </section>
   );
 }

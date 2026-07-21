@@ -1,5 +1,5 @@
 export const SITE_CONFIG = {
   name: "IVORY",
   shortName: "IV",
-  description: "Fashion premium dengan sudut pandang modern dan editorial.",
+  description: "Curated premium fashion with a modern, editorial point of view.",
 } as const;

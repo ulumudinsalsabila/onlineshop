@@ -10,8 +10,8 @@ const popularBrands: NavigationLink[] = [
 
 export const announcement = {
   id: "complimentary-shipping-july-2026",
-  message: "Complimentary shipping ke seluruh Indonesia untuk pesanan di atas Rp2.500.000",
-  link: { label: "Lihat detail", href: "/shipping" },
+  message: "Complimentary shipping across Indonesia on orders over Rp2,500,000",
+  link: { label: "View details", href: "/shipping" },
 };
 
 export const mainNavigation: NavigationItem[] = [
@@ -75,7 +75,7 @@ export const mainNavigation: NavigationItem[] = [
 
 export const searchData = {
   recent: ["structured bags", "silk scarf", "neutral slingbacks"],
-  popular: ["new arrivals", "shoulder bags", "preloved icons", "summer edit", "gifts under 3 juta"],
+  popular: ["new arrivals", "shoulder bags", "preloved icons", "summer edit", "gifts under Rp3 million"],
   suggestedProducts: [
     { id: "bag-amelie", name: "Amélie Shoulder Bag", category: "Bags", price: 4890000, image: "/images/storefront/product-shoulder-bag.png", href: "/products/amelie-shoulder-bag" },
     { id: "shoes-celine", name: "Céline Slingback 45", category: "Shoes", price: 3290000, image: "/images/storefront/product-slingback.png", href: "/products/celine-slingback-45" },
@@ -99,7 +99,7 @@ export const contactDetails = {
   email: "care@ivory.id",
   phone: "+62 21 555 0188",
   whatsapp: "https://wa.me/6281112345678?text=Halo%20Maison%20Elan%2C%20saya%20butuh%20bantuan.",
-  hours: "Senin–Sabtu, 09.00–18.00 WIB",
+  hours: "Monday–Saturday, 9:00 AM–6:00 PM WIB",
 };
 
 export const paymentMethods = ["VISA", "Mastercard", "BCA", "Mandiri", "BNI", "QRIS"] as const;

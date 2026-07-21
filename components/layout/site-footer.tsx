@@ -16,10 +16,10 @@ export function SiteFooter() {
       <Container className="grid gap-12 py-14 lg:grid-cols-[1.15fr_2fr] lg:gap-20 lg:py-20">
         <div className="max-w-md">
           <Logo />
-          <p className="mt-5 text-sm leading-7 text-muted-foreground">{SITE_CONFIG.description} Dibuat untuk menemani pilihan yang personal, intentional, dan bertahan lama.</p>
+          <p className="mt-5 text-sm leading-7 text-muted-foreground">{SITE_CONFIG.description} Designed for choices that feel personal, intentional, and enduring.</p>
           <div className="mt-8">
             <h2 className="font-serif text-2xl">Private notes, thoughtfully curated.</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Akses awal koleksi, editorial, dan undangan khusus.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Early access to collections, editorial stories, and private invitations.</p>
             <NewsletterForm />
           </div>
         </div>
@@ -48,7 +48,7 @@ export function SiteFooter() {
               return <a key={social.label} href={social.href} target="_blank" rel="noreferrer" aria-label={social.label} className="transition-colors hover:text-accent-foreground focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"><Icon size={19} aria-hidden /></a>;
             })}
           </div>
-          <div className="flex flex-wrap items-center gap-2" aria-label="Metode pembayaran yang didukung">
+          <div className="flex flex-wrap items-center gap-2" aria-label="Supported payment methods">
             {paymentMethods.map((method) => <span key={method} className="rounded-sm border border-border bg-background px-2.5 py-1 text-[0.625rem] font-bold tracking-wide text-muted-foreground">{method}</span>)}
           </div>
         </Container>

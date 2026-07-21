@@ -77,12 +77,12 @@ export function findMockProductBySlug(slug: string) {
   return {
     ...product,
     sku: `IV-${product.id.toUpperCase()}`,
-    shortDescription: `${product.brand} ${product.name} dalam kurasi IVORY.`,
+    shortDescription: `${product.brand} ${product.name} from the IVORY curation.`,
     description: conditionDetails
-      ? "Produk preloved terkurasi dengan kondisi yang diperiksa dan dijelaskan secara transparan."
-      : "Produk premium terkurasi dengan material berkarakter dan proporsi yang dirancang untuk penggunaan sehari-hari.",
+      ? "A curated preloved piece with an inspected condition described in full transparency."
+      : "A curated premium piece with expressive materials and proportions designed for everyday wear.",
     completeness: conditionDetails ? "Product only, IVORY authenticity card" : null,
-    flawNotes: conditionDetails ? "Tanda pemakaian ringan sesuai usia produk." : null,
+    flawNotes: conditionDetails ? "Light signs of wear consistent with the age of the piece." : null,
     purchaseYear: conditionDetails ? 2024 : null,
     authenticationStatus: conditionDetails ? "Authenticated by IVORY" : null,
     material: "Premium materials",
@@ -97,14 +97,14 @@ export function findMockProductBySlug(slug: string) {
 export function findMockCategoryBySlug(slug: string) {
   const category = catalogCategories.find((item) => item.value === slug);
   return category
-    ? { name: category.label, slug: category.value, description: `Koleksi ${category.label.toLowerCase()} premium yang dikurasi oleh IVORY.` }
+    ? { name: category.label, slug: category.value, description: `A premium ${category.label.toLowerCase()} collection curated by IVORY.` }
     : null;
 }
 
 export function findMockBrandBySlug(slug: string) {
   const brand = catalogBrands.find((item) => item.value === slug);
   return brand
-    ? { name: brand.label, slug: brand.value, description: `Pilihan ${brand.label} dalam kurasi IVORY.` }
+    ? { name: brand.label, slug: brand.value, description: `A considered selection from ${brand.label}, curated by IVORY.` }
     : null;
 }
 

@@ -13,8 +13,8 @@ export function apiError(code: string, message: string, status = 400, details?: 
 }
 
 export function handleApiError(error: unknown) {
-  if (error instanceof ZodError) return apiError("VALIDATION_ERROR", "Data yang dikirim tidak valid.", 422, error.flatten());
-  if (error instanceof SyntaxError) return apiError("INVALID_JSON", "Request body harus berupa JSON yang valid.", 400);
+  if (error instanceof ZodError) return apiError("VALIDATION_ERROR", "The submitted data is invalid.", 422, error.flatten());
+  if (error instanceof SyntaxError) return apiError("INVALID_JSON", "The request body must contain valid JSON.", 400);
   console.error("API error", error);
   return apiError("INTERNAL_ERROR", "Terjadi kesalahan pada server.", 500);
 }

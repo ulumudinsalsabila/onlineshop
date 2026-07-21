@@ -16,7 +16,7 @@ export const checkoutSchema = z.object({
   voucherCode: z.string().trim().toUpperCase().max(40).optional(),
   paymentMethod: paymentMethodSchema,
   notes: z.string().trim().max(500).transform((value) => value.replace(/[<>]/g, "")).optional(),
-}).refine((data) => Boolean(data.addressId || data.address), { message: "Pilih atau tambahkan alamat pengiriman.", path: ["addressId"] });
+}).refine((data) => Boolean(data.addressId || data.address), { message: "Select or add a shipping address.", path: ["addressId"] });
 
 export const ratesSchema = z.object({
   postalCode: z.string().regex(/^\d{5}$/),

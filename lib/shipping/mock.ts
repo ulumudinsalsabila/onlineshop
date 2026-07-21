@@ -15,7 +15,7 @@ export class MockShippingProvider implements ShippingProvider {
       const data = services[code as keyof typeof services];
       if (!data) return [];
       const [courierName, serviceCode, serviceName, base, min, max] = data;
-      return [{ provider: this.name, courierCode: code, courierName, serviceCode, serviceName, cost: base + zone * 2500, estimateMinDays: min + zone, estimateMaxDays: max + zone, estimateLabel: `${min + zone}-${max + zone} hari` }];
+      return [{ provider: this.name, courierCode: code, courierName, serviceCode, serviceName, cost: base + zone * 2500, estimateMinDays: min + zone, estimateMaxDays: max + zone, estimateLabel: `${min + zone}-${max + zone} days` }];
     });
   }
   async track(input: { trackingNumber: string; courierCode: string }): Promise<TrackingResult> {

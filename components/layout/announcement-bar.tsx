@@ -50,7 +50,7 @@ export function AnnouncementBar() {
               </Link>
             </p>
             <IconButton
-              aria-label="Tutup pengumuman"
+              aria-label="Close announcement"
               onClick={closeAnnouncement}
               variant="ghost"
               size="icon-xs"

@@ -46,7 +46,7 @@ export const catalogSortOptions: Array<{ value: CatalogSort; label: string }> = 
   { value: "discount-desc", label: "Biggest Discount" },
 ];
 
-export const popularCatalogKeywords = ["shoulder bag", "neutral shoes", "silk scarf", "preloved icon", "gifts under 3 juta"];
+export const popularCatalogKeywords = ["shoulder bag", "neutral shoes", "silk scarf", "preloved icon", "gifts under Rp3 million"];
 
 const images = {
   shoulder: ["/images/storefront/product-shoulder-bag.png", "/images/home/shoulder-alt.png"],

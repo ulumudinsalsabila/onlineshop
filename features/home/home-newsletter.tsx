@@ -7,7 +7,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-const emailSchema = z.string().trim().email("Masukkan alamat email yang valid.");
+const emailSchema = z.string().trim().email("Enter a valid email address.");
 
 export function HomeNewsletter() {
   const [email, setEmail] = useState("");
@@ -19,7 +19,7 @@ export function HomeNewsletter() {
       <div className="flex min-h-28 flex-col items-center justify-center" role="status" aria-live="polite">
         <CheckCircleIcon size={34} weight="light" className="text-accent-foreground" aria-hidden />
         <p className="mt-3 font-serif text-2xl">You’re on the list.</p>
-        <p className="mt-1 text-sm text-muted-foreground">Editorial notes berikutnya akan hadir di inbox Anda.</p>
+        <p className="mt-1 text-sm text-muted-foreground">The next editorial note will arrive in your inbox.</p>
       </div>
     );
   }
@@ -32,20 +32,20 @@ export function HomeNewsletter() {
         event.preventDefault();
         const result = emailSchema.safeParse(email);
         if (!result.success) {
-          setError(result.error.issues[0]?.message ?? "Email tidak valid.");
+          setError(result.error.issues[0]?.message ?? "Invalid email address.");
           return;
         }
         setError("");
         setIsSuccess(true);
       }}
     >
-      <label htmlFor="home-newsletter-email" className="sr-only">Alamat email</label>
+      <label htmlFor="home-newsletter-email" className="sr-only">Email address</label>
       <div className="flex border-b border-foreground/35">
-        <Input id="home-newsletter-email" type="email" value={email} onChange={(event) => { setEmail(event.target.value); if (error) setError(""); }} placeholder="Alamat email Anda" aria-invalid={!!error} aria-describedby={error ? "home-newsletter-error" : undefined} className="h-14 rounded-none border-0 bg-transparent px-0 text-center shadow-none focus-visible:ring-0 sm:text-left" />
+        <Input id="home-newsletter-email" type="email" value={email} onChange={(event) => { setEmail(event.target.value); if (error) setError(""); }} placeholder="Your email address" aria-invalid={!!error} aria-describedby={error ? "home-newsletter-error" : undefined} className="h-14 rounded-none border-0 bg-transparent px-0 text-center shadow-none focus-visible:ring-0 sm:text-left" />
         <Button type="submit" variant="ghost" className="h-14 shrink-0 px-4">Join us <ArrowRightIcon aria-hidden /></Button>
       </div>
       <p id="home-newsletter-error" className="mt-2 min-h-5 text-sm text-destructive" aria-live="polite">{error}</p>
-      <p className="mt-2 text-xs leading-5 text-muted-foreground">Dengan mendaftar, Anda menyetujui Privacy Policy dan dapat berhenti berlangganan kapan saja.</p>
+      <p className="mt-2 text-xs leading-5 text-muted-foreground">By joining, you agree to our Privacy Policy and may unsubscribe at any time.</p>
     </form>
   );
 }

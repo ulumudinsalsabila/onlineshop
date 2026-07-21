@@ -70,8 +70,8 @@ export function SiteHeader() {
         <AnnouncementBar />
         <Container className="grid h-16 grid-cols-3 items-center gap-2 px-3 sm:h-20 sm:gap-4 sm:px-(--container-gutter)">
           <div className="flex items-center gap-1 lg:hidden">
-            <IconButton aria-label="Buka menu" variant="ghost" onClick={() => setMobileOpen(true)}><ListIcon size={21} aria-hidden /></IconButton>
-            <IconButton aria-label="Cari" variant="ghost" onClick={() => setSearchOpen(true)}><MagnifyingGlassIcon size={20} aria-hidden /></IconButton>
+            <IconButton aria-label="Open menu" variant="ghost" onClick={() => setMobileOpen(true)}><ListIcon size={21} aria-hidden /></IconButton>
+            <IconButton aria-label="Search" variant="ghost" onClick={() => setSearchOpen(true)}><MagnifyingGlassIcon size={20} aria-hidden /></IconButton>
           </div>
           <button type="button" onClick={() => setSearchOpen(true)} className="hidden w-fit items-center gap-3 text-xs font-semibold tracking-[0.12em] text-muted-foreground uppercase transition-colors hover:text-foreground focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring lg:flex">
             <MagnifyingGlassIcon size={19} aria-hidden /> Search <kbd className="rounded border border-border bg-secondary px-1.5 py-0.5 font-sans text-[0.625rem]">/</kbd>

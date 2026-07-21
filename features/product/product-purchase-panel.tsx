@@ -31,18 +31,18 @@ export function ProductPurchasePanel({ product, details }: { product: CatalogPro
 
   function add(openCart = true) {
     const success = addToCart(product.id, { color, size, quantity, openCart, product });
-    if (!success) { toast.error("Produk sedang tidak tersedia"); return false; }
+    if (!success) { toast.error("This product is currently unavailable"); return false; }
     setAdded(true);
     window.setTimeout(() => setAdded(false), 1100);
-    toast.success("Ditambahkan ke shopping bag", { description: `${product.name} · ${color} · ${size}` });
+    toast.success("Added to shopping bag", { description: `${product.name} · ${color} · ${size}` });
     return true;
   }
 
   async function share() {
-    const data = { title: product.name, text: `Lihat ${product.name} dari ${product.brand}`, url: window.location.href };
+    const data = { title: product.name, text: `Discover ${product.name} by ${product.brand}`, url: window.location.href };
     try {
       if (navigator.share) await navigator.share(data);
-      else { await navigator.clipboard.writeText(window.location.href); toast.success("Link produk disalin"); }
+      else { await navigator.clipboard.writeText(window.location.href); toast.success("Product link copied"); }
     } catch {
       // The native share dialog can be dismissed without requiring feedback.
     }
@@ -63,7 +63,7 @@ export function ProductPurchasePanel({ product, details }: { product: CatalogPro
 
       <div className="mt-8 border-t border-border pt-6">
         <div className="flex items-center justify-between"><span className="text-xs font-semibold tracking-wider uppercase">Color</span><span className="text-xs capitalize text-muted-foreground">{color}</span></div>
-        <div className="mt-3 flex flex-wrap gap-3">{product.colors.map((value) => { const swatch = catalogColors.find((item) => item.value === value)?.swatch; return <button key={value} type="button" aria-label={`Pilih warna ${value}`} aria-pressed={color === value} onClick={() => setColor(value)} className={cn("grid size-9 place-items-center rounded-full border transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring", color === value ? "border-primary ring-2 ring-primary/20 ring-offset-2" : "border-border")}><span className="size-6 rounded-full border border-black/10" style={{ backgroundColor: swatch }} aria-hidden /></button>; })}</div>
+        <div className="mt-3 flex flex-wrap gap-3">{product.colors.map((value) => { const swatch = catalogColors.find((item) => item.value === value)?.swatch; return <button key={value} type="button" aria-label={`Select colour ${value}`} aria-pressed={color === value} onClick={() => setColor(value)} className={cn("grid size-9 place-items-center rounded-full border transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring", color === value ? "border-primary ring-2 ring-primary/20 ring-offset-2" : "border-border")}><span className="size-6 rounded-full border border-black/10" style={{ backgroundColor: swatch }} aria-hidden /></button>; })}</div>
       </div>
 
       <div className="mt-7">
@@ -72,7 +72,7 @@ export function ProductPurchasePanel({ product, details }: { product: CatalogPro
       </div>
 
       <div className="mt-7 flex items-end justify-between gap-5 border-y border-border py-5">
-        <div><p className="text-xs font-semibold tracking-wider uppercase">Quantity</p><div className="mt-3 flex h-10 items-center border border-border"><button type="button" aria-label="Kurangi quantity" onClick={() => setQuantity((current) => clampQuantity(current - 1, product.stock))} disabled={quantity <= 1 || unavailable} className="grid size-10 place-items-center disabled:opacity-35"><MinusIcon aria-hidden /></button><m.span key={quantity} initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }} className="min-w-8 text-center text-sm">{quantity}</m.span><button type="button" aria-label="Tambah quantity" onClick={() => setQuantity((current) => clampQuantity(current + 1, product.stock))} disabled={quantity >= product.stock || unavailable} className="grid size-10 place-items-center disabled:opacity-35"><PlusIcon aria-hidden /></button></div></div>
+        <div><p className="text-xs font-semibold tracking-wider uppercase">Quantity</p><div className="mt-3 flex h-10 items-center border border-border"><button type="button" aria-label="Decrease quantity" onClick={() => setQuantity((current) => clampQuantity(current - 1, product.stock))} disabled={quantity <= 1 || unavailable} className="grid size-10 place-items-center disabled:opacity-35"><MinusIcon aria-hidden /></button><m.span key={quantity} initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }} className="min-w-8 text-center text-sm">{quantity}</m.span><button type="button" aria-label="Increase quantity" onClick={() => setQuantity((current) => clampQuantity(current + 1, product.stock))} disabled={quantity >= product.stock || unavailable} className="grid size-10 place-items-center disabled:opacity-35"><PlusIcon aria-hidden /></button></div></div>
         <p className={cn("pb-2 text-xs font-medium", unavailable ? "text-destructive" : product.stock <= 3 ? "text-accent-foreground" : "text-muted-foreground")}>{unavailable ? "Sold out" : product.stock === 1 ? "Only one available" : product.stock <= 3 ? `Only ${product.stock} left` : "In stock"}</p>
       </div>
 
@@ -81,7 +81,7 @@ export function ProductPurchasePanel({ product, details }: { product: CatalogPro
         <Button size="lg" variant="outline" disabled={unavailable} onClick={() => { if (add(false)) router.push("/cart"); }}>Buy now</Button>
       </div>
       <div className="mt-3 grid grid-cols-2 gap-3">
-        <Button variant="ghost" onClick={() => { const next = toggleWishlist(product.id); toast(next ? "Ditambahkan ke wishlist" : "Dihapus dari wishlist"); }}><HeartIcon weight={wishlisted ? "fill" : "regular"} className={wishlisted ? "text-destructive" : undefined} aria-hidden /> {wishlisted ? "Wishlisted" : "Wishlist"}</Button>
+        <Button variant="ghost" onClick={() => { const next = toggleWishlist(product.id); toast(next ? "Added to wishlist" : "Removed from wishlist"); }}><HeartIcon weight={wishlisted ? "fill" : "regular"} className={wishlisted ? "text-destructive" : undefined} aria-hidden /> {wishlisted ? "Wishlisted" : "Wishlist"}</Button>
         <Button variant="ghost" onClick={share}><ShareNetworkIcon aria-hidden /> Share</Button>
       </div>
 
@@ -99,8 +99,8 @@ export function ProductPurchasePanel({ product, details }: { product: CatalogPro
       ) : null}
 
       <Accordion type="multiple" defaultValue={["shipping"]} className="mt-7 border-t border-border">
-        <AccordionItem value="shipping"><AccordionTrigger className="rounded-none py-4 text-xs font-semibold tracking-wider uppercase hover:no-underline">Shipping</AccordionTrigger><AccordionContent className="pb-5 text-sm leading-6 text-muted-foreground">Pengiriman terlacak ke seluruh Indonesia. Complimentary shipping untuk pembelian di atas Rp2.500.000.</AccordionContent></AccordionItem>
-        <AccordionItem value="returns"><AccordionTrigger className="rounded-none py-4 text-xs font-semibold tracking-wider uppercase hover:no-underline">Returns</AccordionTrigger><AccordionContent className="pb-5 text-sm leading-6 text-muted-foreground">Produk baru dapat dikembalikan dalam 7 hari sesuai ketentuan. Produk preloved mengikuti final inspection policy.</AccordionContent></AccordionItem>
+        <AccordionItem value="shipping"><AccordionTrigger className="rounded-none py-4 text-xs font-semibold tracking-wider uppercase hover:no-underline">Shipping</AccordionTrigger><AccordionContent className="pb-5 text-sm leading-6 text-muted-foreground">Tracked delivery is available across Indonesia, with complimentary shipping on orders over Rp2,500,000.</AccordionContent></AccordionItem>
+        <AccordionItem value="returns"><AccordionTrigger className="rounded-none py-4 text-xs font-semibold tracking-wider uppercase hover:no-underline">Returns</AccordionTrigger><AccordionContent className="pb-5 text-sm leading-6 text-muted-foreground">New products may be returned within seven days under our policy. Preloved pieces follow the final-inspection policy.</AccordionContent></AccordionItem>
       </Accordion>
     </div>
   );

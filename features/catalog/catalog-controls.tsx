@@ -82,7 +82,7 @@ export function CatalogControls({ query, total, suggestions, config, children }:
   function rememberSearch(value: string) {
     const normalized = value.trim();
     if (!normalized) return;
-    const next = [normalized, ...recentSearches.filter((item) => item.toLocaleLowerCase("id") !== normalized.toLocaleLowerCase("id"))].slice(0, 5);
+    const next = [normalized, ...recentSearches.filter((item) => item.toLocaleLowerCase("en") !== normalized.toLocaleLowerCase("en"))].slice(0, 5);
     setRecentSearches(next);
     localStorage.setItem(recentStorageKey, JSON.stringify(next));
   }
@@ -95,8 +95,8 @@ export function CatalogControls({ query, total, suggestions, config, children }:
   const activeFilterCount = countFilters(query, locked);
   const chips = createChips(query, locked, patch);
   const visibleSuggestions = useMemo(() => {
-    const term = searchValue.trim().toLocaleLowerCase("id");
-    const source = term ? suggestions.filter((item) => item.toLocaleLowerCase("id").includes(term)) : recentSearches;
+    const term = searchValue.trim().toLocaleLowerCase("en");
+    const source = term ? suggestions.filter((item) => item.toLocaleLowerCase("en").includes(term)) : recentSearches;
     return [...new Set(source)].slice(0, 6);
   }, [recentSearches, searchValue, suggestions]);
 
@@ -112,7 +112,7 @@ export function CatalogControls({ query, total, suggestions, config, children }:
             navigate({ ...query, q: searchValue.trim(), page: 1 });
           }}
         >
-          <Label htmlFor="catalog-search" className="sr-only">Cari produk</Label>
+          <Label htmlFor="catalog-search" className="sr-only">Search products</Label>
           <div className="relative border-b border-foreground/35">
             <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-0 -translate-y-1/2 text-muted-foreground" size={20} aria-hidden />
             <Input
@@ -122,7 +122,7 @@ export function CatalogControls({ query, total, suggestions, config, children }:
               onChange={(event) => setSearchDraft({ source: query.q, value: event.target.value })}
               onFocus={() => setSearchFocused(true)}
               onBlur={() => window.setTimeout(() => setSearchFocused(false), 150)}
-              placeholder="Cari nama produk, brand, atau kategori"
+              placeholder="Search by product, brand, or category"
               autoComplete="off"
               className="h-14 rounded-none border-0 bg-transparent pr-20 pl-8 text-base shadow-none focus-visible:ring-0"
             />
@@ -155,13 +155,13 @@ export function CatalogControls({ query, total, suggestions, config, children }:
             <Button variant="outline" className="lg:hidden" onClick={() => { setDraft(query); setMobileOpen(true); }}>
               <FunnelIcon aria-hidden /> Filters {activeFilterCount ? <span className="grid size-5 place-items-center rounded-full bg-primary text-[0.625rem] text-primary-foreground">{activeFilterCount}</span> : null}
             </Button>
-            <p className="text-sm text-muted-foreground" aria-live="polite"><span className="font-semibold text-foreground">{total}</span> hasil</p>
-            {isPending ? <CircleNotchIcon className="animate-spin text-muted-foreground" aria-label="Memperbarui hasil" /> : null}
+            <p className="text-sm text-muted-foreground" aria-live="polite"><span className="font-semibold text-foreground">{total}</span> results</p>
+            {isPending ? <CircleNotchIcon className="animate-spin text-muted-foreground" aria-label="Updating results" /> : null}
           </div>
           <div className="flex items-center gap-2">
             <span className="hidden text-xs font-semibold tracking-wider text-muted-foreground uppercase sm:inline">Sort by</span>
             <Select value={query.sort} onValueChange={(value) => patch({ sort: value as CatalogQuery["sort"] })}>
-              <SelectTrigger aria-label="Urutkan produk" className="h-10 min-w-44 rounded-none border-border bg-background"><SelectValue /></SelectTrigger>
+              <SelectTrigger aria-label="Sort products" className="h-10 min-w-44 rounded-none border-border bg-background"><SelectValue /></SelectTrigger>
               <SelectContent align="end">{catalogSortOptions.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent>
             </Select>
           </div>
@@ -184,7 +184,7 @@ export function CatalogControls({ query, total, suggestions, config, children }:
       </div>
 
       <div className="mt-8 grid gap-10 lg:grid-cols-[16rem_minmax(0,1fr)] xl:grid-cols-[18rem_minmax(0,1fr)]">
-        <aside className="hidden lg:block" aria-label="Filter produk">
+        <aside className="hidden lg:block" aria-label="Product filters">
           <div className="sticky top-44">
             <FilterFields value={query} locked={locked} onChange={patch} />
           </div>
@@ -196,7 +196,7 @@ export function CatalogControls({ query, total, suggestions, config, children }:
         <SheetContent side="left" className="w-[min(92vw,27rem)] gap-0 sm:max-w-md">
           <SheetHeader className="border-b border-border p-5 pr-14">
             <SheetTitle className="font-serif text-2xl">Refine your edit</SheetTitle>
-            <SheetDescription>{countFilters(draft, locked)} filter aktif</SheetDescription>
+            <SheetDescription>{countFilters(draft, locked)} active filters</SheetDescription>
           </SheetHeader>
           <div className="min-h-0 flex-1 overflow-y-auto px-5"><FilterFields value={draft} locked={locked} onChange={(value) => setDraft((current) => ({ ...current, ...value }))} /></div>
           <SheetFooter className="grid grid-cols-2 border-t border-border p-4">
@@ -217,7 +217,7 @@ function FilterFields({ value, locked, onChange }: { value: CatalogQuery; locked
       {!locked.has("condition") ? <FilterSection value="condition" title="Condition"><CheckList options={[{ value: "new", label: "New" }, { value: "preloved", label: "Preloved" }]} selected={value.conditions} onChange={(conditions) => onChange({ conditions: conditions as CatalogQuery["conditions"] })} /></FilterSection> : null}
       <FilterSection value="price" title="Price range">
         <div className="px-1 pt-2">
-          <Slider min={CATALOG_MIN_PRICE} max={CATALOG_MAX_PRICE} step={250_000} value={[value.minPrice, value.maxPrice]} onValueCommit={([minPrice, maxPrice]) => onChange({ minPrice, maxPrice })} aria-label="Rentang harga" />
+          <Slider min={CATALOG_MIN_PRICE} max={CATALOG_MAX_PRICE} step={250_000} value={[value.minPrice, value.maxPrice]} onValueCommit={([minPrice, maxPrice]) => onChange({ minPrice, maxPrice })} aria-label="Price range" />
           <div className="mt-4 flex justify-between text-xs text-muted-foreground"><span>{formatIDR(value.minPrice)}</span><span>{formatIDR(value.maxPrice)}</span></div>
         </div>
       </FilterSection>
@@ -267,7 +267,7 @@ function createChips(query: CatalogQuery, locked: Set<string>, patch: (value: Pa
 function HighlightedText({ text, keyword }: { text: string; keyword: string }) {
   const query = keyword.trim();
   if (!query) return <>{text}</>;
-  const index = text.toLocaleLowerCase("id").indexOf(query.toLocaleLowerCase("id"));
+  const index = text.toLocaleLowerCase("en").indexOf(query.toLocaleLowerCase("en"));
   if (index < 0) return <>{text}</>;
   return <>{text.slice(0, index)}<mark className="bg-accent/55 text-current">{text.slice(index, index + query.length)}</mark>{text.slice(index + query.length)}</>;
 }

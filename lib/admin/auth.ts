@@ -18,6 +18,6 @@ export async function authorizeAdminApi(permission: AdminPermission) {
   const result = await authenticateApi();
   if (!result.user) return result;
   if (!isBackofficeRole(result.user.role)) return { user: null, response: apiError("FORBIDDEN", "Akses backoffice diperlukan.", 403) } as const;
-  if (!hasAdminPermission(result.user.role, permission)) return { user: null, response: apiError("FORBIDDEN", "Role Anda tidak memiliki izin untuk tindakan ini.", 403) } as const;
+  if (!hasAdminPermission(result.user.role, permission)) return { user: null, response: apiError("FORBIDDEN", "Your role does not allow this action.", 403) } as const;
   return result;
 }

@@ -16,8 +16,8 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const product = await findProductBySlug(slug);
-  if (!product) return { title: "Product tidak ditemukan", robots: { index: false, follow: false } };
-  const description = `${product.name} dari ${product.brand}. ${product.category} pilihan dalam kurasi IVORY.`;
+  if (!product) return { title: "Product not found", robots: { index: false, follow: false } };
+  const description = `${product.name} by ${product.brand}. A ${product.category.toLowerCase()} piece from the IVORY curation.`;
   return publicMetadata({ title: product.name, description, path: `/products/${product.slug}`, image: product.image });
 }
 
@@ -25,7 +25,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const { slug } = await params;
   const product = await findProductBySlug(slug);
   if (!product) notFound();
-  const details = { sku: product.sku, description: product.description, completeness: product.completeness ?? undefined, flaws: product.flawNotes ?? undefined, purchaseYear: product.purchaseYear ?? undefined, authenticationStatus: product.authenticationStatus ?? undefined, specifications: [{ label: "Material", value: product.material ?? "Premium materials" }, { label: "Color", value: product.colors.join(", ") || "As pictured" }, { label: "Size", value: product.sizes.join(", ") || "One Size" }, { label: "Origin", value: product.origin ?? "Responsibly sourced" }] };
+  const details = { sku: product.sku, description: product.description, completeness: product.completeness ?? undefined, flaws: product.flawNotes ?? undefined, purchaseYear: product.purchaseYear ?? undefined, authenticationStatus: product.authenticationStatus ?? undefined, specifications: [{ label: "Material", value: product.material ?? "Premium materials" }, { label: "Colour", value: product.colors.join(", ") || "As pictured" }, { label: "Size", value: product.sizes.join(", ") || "One Size" }, { label: "Origin", value: product.origin ?? "Responsibly sourced" }] };
   const related = await relatedProducts(product.categorySlug, product.id, 4);
   const productJsonLd = { "@context": "https://schema.org", "@type": "Product", name: product.name, description: product.description, sku: product.sku, image: product.images.map((image) => absoluteUrl(image.url)), brand: { "@type": "Brand", name: product.brand }, category: product.category, itemCondition: product.conditionType === "preloved" ? "https://schema.org/UsedCondition" : "https://schema.org/NewCondition", offers: { "@type": "Offer", url: absoluteUrl(`/products/${product.slug}`), priceCurrency: "IDR", price: product.price, availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock", seller: { "@type": "Organization", name: "IVORY" } } };
 
@@ -39,14 +39,14 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
       <Container className="mt-(--space-section)">
         <div className="grid gap-12 border-y border-border py-12 lg:grid-cols-[0.8fr_1.2fr] lg:py-16">
-          <div><p className="text-[0.625rem] font-semibold tracking-[0.16em] text-muted-foreground uppercase">Product story</p><h2 className="mt-3 font-serif text-(length:--text-heading-2)">Details, considered.</h2><p className="mt-5 max-w-lg text-sm leading-7 text-muted-foreground">{details.description} Setiap detail dipilih untuk menciptakan keseimbangan antara fungsi, tactility, dan bentuk.</p></div>
+          <div><p className="text-[0.625rem] font-semibold tracking-[0.16em] text-muted-foreground uppercase">Product story</p><h2 className="mt-3 font-serif text-(length:--text-heading-2)">Details, considered.</h2><p className="mt-5 max-w-lg text-sm leading-7 text-muted-foreground">{details.description} Every detail is selected to balance function, tactility, and form.</p></div>
           <dl className="divide-y divide-border border-t border-border">{details.specifications.map((item) => <div key={item.label} className="grid grid-cols-[8rem_1fr] gap-5 py-4 text-sm"><dt className="text-muted-foreground">{item.label}</dt><dd>{item.value}</dd></div>)}</dl>
         </div>
 
         <section className="grid gap-px bg-border sm:grid-cols-3" aria-label="Authenticity guarantee">
-          <Guarantee icon={FingerprintIcon} title="Expert inspection" text="Material, konstruksi, hardware, dan serial diperiksa secara menyeluruh." />
-          <Guarantee icon={ShieldCheckIcon} title="Authenticity assured" text="Produk preloved disertai hasil autentikasi dan perlindungan pembelian." />
-          <Guarantee icon={SparkleIcon} title="Condition transparent" text="Catatan kondisi ditulis secara jelas sebelum produk ditawarkan." />
+          <Guarantee icon={FingerprintIcon} title="Expert inspection" text="Materials, construction, hardware, and serial details are reviewed thoroughly." />
+          <Guarantee icon={ShieldCheckIcon} title="Authenticity assured" text="Preloved pieces include authentication results and purchase protection." />
+          <Guarantee icon={SparkleIcon} title="Condition transparent" text="Condition notes are clearly documented before a piece is offered." />
         </section>
 
         {related.length ? <section className="mt-(--space-section)" aria-labelledby="related-title"><p className="text-[0.625rem] font-semibold tracking-[0.16em] text-muted-foreground uppercase">Continue exploring</p><h2 id="related-title" className="mt-2 font-serif text-(length:--text-heading-2)">Related products</h2><div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 lg:grid-cols-4">{related.map((item) => <ProductCard key={item.id} product={item} />)}</div></section> : null}
