@@ -1,0 +1,7 @@
+import { authenticateApi } from "@/lib/api-auth";
+import { apiError, apiSuccess, handleApiError } from "@/lib/api-response";
+import { logSellerActivity } from "@/lib/seller/activity";
+import { sellerApplicationSchema } from "@/lib/seller/schemas";
+import { prisma } from "@/lib/prisma";
+
+export async function POST(request: Request) { try { const auth = await authenticateApi(); if (!auth.user) return auth.response; const data = sellerApplicationSchema.parse(await request.json()); const existing = await prisma.sellerProfile.findUnique({ where: { userId: auth.user.id } }); if (existing && !["REJECTED"].includes(existing.status)) return apiError("APPLICATION_EXISTS", "Pengajuan seller sudah tersedia.", 409); const seller = await prisma.$transaction(async (tx) => { const profile = existing ? await tx.sellerProfile.update({ where: { id: existing.id }, data: { ...data, identityNumber: data.identityNumber || null, bio: data.bio || null, status: "PENDING", rejectionReason: null, reviewedAt: null, reviewedById: null } }) : await tx.sellerProfile.create({ data: { ...data, userId: auth.user.id, identityNumber: data.identityNumber || null, bio: data.bio || null } }); await logSellerActivity(tx, { sellerId: profile.id, actorUserId: auth.user.id, action: "SELLER_APPLICATION_SUBMITTED", entityType: "SellerProfile", entityId: profile.id }); return profile; }); return apiSuccess({ id: seller.id, status: seller.status }, { status: 201 }); } catch (error) { return handleApiError(error); } }

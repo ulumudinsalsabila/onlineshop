@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { connection } from "next/server";
 import {
   ArrowRightIcon,
   CreditCardIcon,
@@ -13,26 +14,23 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 
 import { Container } from "@/components/shared/container";
+import { StorefrontShell } from "@/components/layout";
 import { MotionSection } from "@/components/shared/motion-section";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
-  brands,
   guaranteeItems,
   heroContent,
   homeCategories,
-  newArrivals,
-  prelovedProducts,
   shoppingSteps,
 } from "@/constants/home";
 import { HomeNewsletter, ProductCarousel, TestimonialCarousel } from "@/features/home";
+import { productsForHome } from "@/lib/data/products";
+import { publicMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Curated Fashion & Preloved Icons",
-  description: "Temukan fashion premium, koleksi terbaru, dan pilihan preloved terautentikasi dalam pengalaman belanja yang modern dan personal.",
-};
+export const metadata: Metadata = publicMetadata({ title: "Curated Fashion & Preloved Icons", description: "Temukan fashion premium, koleksi terbaru, dan pilihan preloved terautentikasi dalam pengalaman belanja yang modern dan personal.", path: "/" });
 
 const guaranteeIcons = {
   inspect: MagnifyingGlassIcon,
@@ -41,27 +39,31 @@ const guaranteeIcons = {
   delivery: TruckIcon,
 };
 
-export default function Home() {
+export default async function Home() {
+  await connection();
+  const database = await productsForHome();
+  const isVisible = (key: string) => !database.sections.length || database.sections.some((section) => section.key === key && section.isVisible);
+  const content = database.banner ? { eyebrow: database.banner.eyebrow ?? "IVORY", title: database.banner.title, description: database.banner.body ?? "", image: database.banner.imageUrl } : heroContent;
   return (
-    <>
-      <section className="relative isolate min-h-[43rem] overflow-hidden bg-primary text-white sm:min-h-[48rem] lg:min-h-[calc(100svh-10rem)]">
-        <Image src={heroContent.image} alt="Model mengenakan tailoring ivory dengan tas taupe dalam galeri batu" width={1536} height={1024} priority sizes="100vw" className="absolute inset-0 size-full object-cover object-[68%_center] lg:object-center" />
+    <StorefrontShell>
+      {isVisible("hero") ? <section className="relative isolate min-h-[43rem] overflow-hidden bg-primary text-white sm:min-h-[48rem] lg:min-h-[calc(100svh-10rem)]">
+        <Image src={content.image} alt="Model mengenakan tailoring ivory dengan tas taupe dalam galeri batu" width={1536} height={1024} priority sizes="100vw" className="absolute inset-0 size-full object-cover object-[68%_center] lg:object-center" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/48 to-black/5 sm:from-black/75 sm:via-black/38" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
         <Container className="relative flex min-h-[43rem] items-end pb-14 sm:min-h-[48rem] sm:items-center sm:pb-0 lg:min-h-[calc(100svh-10rem)]">
           <MotionSection className="max-w-2xl">
-            <p className="text-xs font-semibold tracking-[0.22em] text-white/78 uppercase">{heroContent.eyebrow}</p>
-            <h1 className="mt-5 font-serif text-[clamp(3.25rem,7vw,7.25rem)] leading-[0.88] font-medium tracking-[-0.035em] text-balance">{heroContent.title}</h1>
-            <p className="mt-6 max-w-xl text-sm leading-7 text-white/80 sm:text-base">{heroContent.description}</p>
+            <p className="text-xs font-semibold tracking-[0.22em] text-white/78 uppercase">{content.eyebrow}</p>
+            <h1 className="mt-5 font-serif text-[clamp(3.25rem,7vw,7.25rem)] leading-[0.88] font-medium tracking-[-0.035em] text-balance">{content.title}</h1>
+            <p className="mt-6 max-w-xl text-sm leading-7 text-white/80 sm:text-base">{content.description}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild size="lg" className="group bg-white text-primary hover:bg-white/90"><Link href="/new-arrivals" prefetch={false}>Shop now <ArrowRightIcon className="transition-transform group-hover:translate-x-0.5" aria-hidden /></Link></Button>
               <Button asChild size="lg" variant="outline" className="border-white/60 bg-transparent text-white hover:bg-white hover:text-primary"><Link href="/preloved" prefetch={false}>Explore preloved</Link></Button>
             </div>
           </MotionSection>
         </Container>
-      </section>
+      </section> : null}
 
-      <MotionSection className="py-(--space-section)">
+      {isVisible("categories") ? <MotionSection className="py-(--space-section)">
         <Container>
           <SectionHeading eyebrow="Curated worlds" title="Shop by category" description="Mulai dari siluet yang Anda cari, lalu temukan detail yang terasa paling personal." />
           <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-12 lg:grid-rows-2">
@@ -83,19 +85,19 @@ export default function Home() {
             ))}
           </div>
         </Container>
-      </MotionSection>
+      </MotionSection> : null}
 
-      <MotionSection className="border-y border-border bg-card py-(--space-section)">
+      {isVisible("new-arrivals") ? <MotionSection className="border-y border-border bg-card py-(--space-section)">
         <Container>
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <SectionHeading eyebrow="Just landed" title="New arrivals" description="Pilihan terbaru dengan bentuk kuat, warna tenang, dan kualitas yang dapat dirasakan." />
             <TextLink href="/new-arrivals">View all arrivals</TextLink>
           </div>
-          <div className="mt-5"><ProductCarousel products={newArrivals} label="New arrivals" /></div>
+          <div className="mt-5"><ProductCarousel products={database.newArrivals} label="New arrivals" /></div>
         </Container>
-      </MotionSection>
+      </MotionSection> : null}
 
-      <MotionSection className="py-(--space-section)">
+      {isVisible("featured") ? <MotionSection className="py-(--space-section)">
         <Container className="grid items-stretch lg:grid-cols-12">
           <div className="relative min-h-[34rem] overflow-hidden lg:col-span-7 lg:min-h-[49rem]">
             <Image src="/images/home/featured-men.png" alt="Pria dalam tailoring charcoal membawa weekender kulit" width={1122} height={1402} sizes="(max-width: 1024px) 100vw, 58vw" className="absolute inset-0 size-full object-cover" />
@@ -112,9 +114,9 @@ export default function Home() {
             </div>
           </div>
         </Container>
-      </MotionSection>
+      </MotionSection> : null}
 
-      <MotionSection className="bg-[#ded5c8] py-(--space-section)">
+      {isVisible("preloved") ? <MotionSection className="bg-[#ded5c8] py-(--space-section)">
         <Container>
           <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-end">
             <div>
@@ -126,21 +128,21 @@ export default function Home() {
               <div><ShieldCheckIcon size={26} weight="light" aria-hidden /><h3 className="mt-3 font-serif text-2xl">Condition, clearly noted</h3><p className="mt-2 text-sm leading-6 text-foreground/65">Pristine, Excellent, atau Very Good—semuanya dijelaskan dengan transparan.</p></div>
             </div>
           </div>
-          <div className="mt-8"><ProductCarousel products={prelovedProducts} label="Preloved collection" /></div>
+          <div className="mt-8"><ProductCarousel products={database.prelovedProducts} label="Preloved collection" /></div>
           <div className="mt-6"><TextLink href="/preloved">Explore all preloved</TextLink></div>
         </Container>
-      </MotionSection>
+      </MotionSection> : null}
 
-      <MotionSection className="py-(--space-section)">
+      {isVisible("brands") ? <MotionSection className="py-(--space-section)">
         <Container>
           <SectionHeading align="center" eyebrow="A considered directory" title="Shop by brand" description="Rumah mode independen dan label kontemporer yang kami pilih karena craft, point of view, dan longevity." />
           <div className="mt-10 grid grid-cols-2 border-t border-l border-border sm:grid-cols-3 lg:grid-cols-6">
-            {brands.map((brand) => <Link key={brand} href={`/brand/${brand.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll(" ", "-").replaceAll("&", "and")}`} prefetch={false} className="group grid min-h-28 place-items-center border-r border-b border-border bg-card px-4 text-center font-serif text-xl transition-colors hover:bg-secondary focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-ring"><span className="transition-transform group-hover:-translate-y-0.5">{brand}</span></Link>)}
+            {database.brands.map((brand) => <Link key={brand.slug} href={`/brand/${brand.slug}`} prefetch={false} className="group grid min-h-28 place-items-center border-r border-b border-border bg-card px-4 text-center font-serif text-xl transition-colors hover:bg-secondary focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-ring"><span className="transition-transform group-hover:-translate-y-0.5">{brand.name}</span></Link>)}
           </div>
         </Container>
-      </MotionSection>
+      </MotionSection> : null}
 
-      <MotionSection className="pb-(--space-section)">
+      {isVisible("promotion") ? <MotionSection className="pb-(--space-section)">
         <Container>
           <div className="grid overflow-hidden bg-accent lg:grid-cols-2">
             <div className="flex flex-col justify-center px-7 py-12 sm:px-12 lg:px-16 lg:py-20">
@@ -152,11 +154,11 @@ export default function Home() {
             <div className="relative min-h-[27rem] lg:min-h-[35rem]"><Image src="/images/storefront/product-silk-scarf.png" alt="Silk scarf dalam palet ivory, charcoal, dan gold" width={1254} height={1254} sizes="(max-width: 1024px) 100vw, 50vw" className="absolute inset-0 size-full object-cover" /></div>
           </div>
         </Container>
-      </MotionSection>
+      </MotionSection> : null}
 
-      <MotionSection className="border-y border-border bg-card py-(--space-section)">
+      {isVisible("authenticity") ? <MotionSection className="border-y border-border bg-card py-(--space-section)">
         <Container>
-          <SectionHeading align="center" eyebrow="The Maison Élan promise" title="Confidence in every detail" description="Dari pemeriksaan pertama hingga paket tiba, setiap tahap dirancang untuk memberi rasa aman." />
+          <SectionHeading align="center" eyebrow="The IVORY promise" title="Confidence in every detail" description="Dari pemeriksaan pertama hingga paket tiba, setiap tahap dirancang untuk memberi rasa aman." />
           <div className="mt-12 grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-4">
             {guaranteeItems.map((item) => {
               const Icon = guaranteeIcons[item.icon];
@@ -164,9 +166,9 @@ export default function Home() {
             })}
           </div>
         </Container>
-      </MotionSection>
+      </MotionSection> : null}
 
-      <MotionSection className="py-(--space-section)">
+      {isVisible("how-to-shop") ? <MotionSection className="py-(--space-section)">
         <Container>
           <div className="grid gap-10 lg:grid-cols-[0.65fr_1.35fr]">
             <SectionHeading eyebrow="Simple by design" title="How to shop" description="Empat langkah yang jelas dari penemuan hingga pesanan tiba di tangan Anda." />
@@ -178,23 +180,23 @@ export default function Home() {
             </ol>
           </div>
         </Container>
-      </MotionSection>
+      </MotionSection> : null}
 
-      <MotionSection className="bg-primary py-(--space-section) text-primary-foreground">
+      {isVisible("testimonials") ? <MotionSection className="bg-primary py-(--space-section) text-primary-foreground">
         <Container>
           <p className="mb-10 text-center text-xs font-semibold tracking-[0.2em] text-primary-foreground/55 uppercase">Notes from our community</p>
-          <TestimonialCarousel />
+          <TestimonialCarousel testimonials={database.testimonials} />
         </Container>
-      </MotionSection>
+      </MotionSection> : null}
 
-      <MotionSection className="py-(--space-section)">
+      {isVisible("newsletter") ? <MotionSection className="py-(--space-section)">
         <Container className="text-center">
           <SectionHeading align="center" eyebrow="The private list" title="Good things, thoughtfully shared." description="Terima akses awal ke koleksi, stories dari balik craft, dan undangan yang hanya kami kirim sesekali." />
           <HomeNewsletter />
           <Separator className="mx-auto mt-12 max-w-3xl" />
         </Container>
-      </MotionSection>
-    </>
+      </MotionSection> : null}
+    </StorefrontShell>
   );
 }
 

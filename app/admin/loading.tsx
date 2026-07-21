@@ -1,0 +1,2 @@
+import { Skeleton } from "@/components/ui/skeleton";
+export default function Loading() { return <div><Skeleton className="h-12 w-72" /><Skeleton className="mt-4 h-5 w-[32rem] max-w-full" /><div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{Array.from({ length: 4 }, (_, index) => <Skeleton key={index} className="h-32 rounded-none" />)}</div><Skeleton className="mt-6 h-[30rem] rounded-none" /></div>; }

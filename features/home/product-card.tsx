@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { catalogProducts } from "@/constants/catalog";
 import { useCommerce } from "@/components/shared/commerce-provider";
 import type { ProductBadge, StoreProduct } from "@/types/storefront";
 
@@ -26,7 +25,7 @@ const badgeStyles: Record<ProductBadge, string> = {
 export function ProductCard({ product }: { product: StoreProduct }) {
   const { addToCart, toggleWishlist: toggleWishlistItem, wishlistIds } = useCommerce();
   const [isLoaded, setIsLoaded] = useState(false);
-  const commerceId = catalogProducts.find((item) => item.id === product.id || item.slug === product.slug)?.id ?? product.id;
+  const commerceId = product.id;
   const isWishlisted = wishlistIds.includes(commerceId);
   const discount = product.compareAt && product.compareAt > product.price
     ? Math.round((1 - product.price / product.compareAt) * 100)
@@ -38,7 +37,7 @@ export function ProductCard({ product }: { product: StoreProduct }) {
   }
 
   function quickAdd() {
-    const added = addToCart(commerceId);
+    const added = addToCart(commerceId, { product });
     if (added) toast.success("Ditambahkan ke shopping bag", { description: product.name });
     else toast.error("Produk sedang tidak tersedia", { description: product.name });
   }

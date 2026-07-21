@@ -78,7 +78,7 @@ export const searchData = {
   popular: ["new arrivals", "shoulder bags", "preloved icons", "summer edit", "gifts under 3 juta"],
   suggestedProducts: [
     { id: "bag-amelie", name: "Amélie Shoulder Bag", category: "Bags", price: 4890000, image: "/images/storefront/product-shoulder-bag.png", href: "/products/amelie-shoulder-bag" },
-    { id: "shoes-celine", name: "Céline Slingback 45", category: "Shoes", price: 3290000, image: "/images/storefront/product-slingback.png", href: "/products/celine-slingback" },
+    { id: "shoes-celine", name: "Céline Slingback 45", category: "Shoes", price: 3290000, image: "/images/storefront/product-slingback.png", href: "/products/celine-slingback-45" },
     { id: "scarf-lumiere", name: "Lumière Silk Scarf", category: "Accessories", price: 1590000, image: "/images/storefront/product-silk-scarf.png", href: "/products/lumiere-silk-scarf" },
   ] satisfies SuggestedProduct[],
 };
@@ -86,7 +86,7 @@ export const searchData = {
 export const footerSections: FooterSection[] = [
   { title: "Shop", links: [{ label: "New Arrivals", href: "/new-arrivals" }, { label: "Bags", href: "/category/bags" }, { label: "Shoes", href: "/category/shoes" }, { label: "Accessories", href: "/category/accessories" }, { label: "Preloved", href: "/preloved" }] },
   { title: "Customer Care", links: [{ label: "Contact Us", href: "/contact" }, { label: "Shipping & Delivery", href: "/shipping" }, { label: "Returns", href: "/returns" }, { label: "Size Guide", href: "/size-guide" }, { label: "FAQ", href: "/faq" }] },
-  { title: "About", links: [{ label: "Our Story", href: "/about" }, { label: "Authenticity", href: "/authenticity" }, { label: "Journal", href: "/journal" }, { label: "Careers", href: "/careers" }] },
+  { title: "About", links: [{ label: "Our Story", href: "/about" }, { label: "Sell with Us", href: "/sell" }, { label: "Authenticity", href: "/authenticity" }, { label: "Journal", href: "/journal" }, { label: "Careers", href: "/careers" }] },
 ];
 
 export const socialLinks = [
@@ -96,7 +96,7 @@ export const socialLinks = [
 ] as const;
 
 export const contactDetails = {
-  email: "care@maisonelan.id",
+  email: "care@ivory.id",
   phone: "+62 21 555 0188",
   whatsapp: "https://wa.me/6281112345678?text=Halo%20Maison%20Elan%2C%20saya%20butuh%20bantuan.",
   hours: "Senin–Sabtu, 09.00–18.00 WIB",

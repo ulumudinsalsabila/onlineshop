@@ -1,0 +1,7 @@
+import { authorizeAdminApi } from "@/lib/admin/auth";
+import { writeAuditLog } from "@/lib/admin/audit";
+import { apiSuccess, handleApiError } from "@/lib/api-response";
+import { logSellerActivity } from "@/lib/seller/activity";
+import { prisma } from "@/lib/prisma";
+
+export async function POST(request: Request) { try { const auth = await authorizeAdminApi("sellers:write"); if (!auth.user) return auth.response; const now = new Date(); const eligible = await prisma.consignmentSubmission.findMany({ where: { status: "SOLD", returnWindowEndsAt: { lte: now }, product: { variants: { some: { orderItems: { some: { order: { returnRequests: { none: { status: { in: ["REQUESTED", "APPROVED", "IN_TRANSIT", "RECEIVED"] } } } } } } } } } }, select: { id: true, sellerId: true } }); await prisma.$transaction(async (tx) => { for (const item of eligible) { await tx.consignmentSubmission.update({ where: { id: item.id }, data: { status: "COMPLETED", completedAt: now, version: { increment: 1 } } }); await logSellerActivity(tx, { sellerId: item.sellerId, actorUserId: auth.user.id, action: "CONSIGNMENT_COMPLETED", entityType: "ConsignmentSubmission", entityId: item.id }); } await writeAuditLog(tx, { userId: auth.user.id, action: "CONSIGNMENT_SETTLEMENT_RUN", entityType: "ConsignmentSubmission", metadata: { completedIds: eligible.map((item) => item.id) }, request }); }); return apiSuccess({ count: eligible.length }); } catch (error) { return handleApiError(error); } }

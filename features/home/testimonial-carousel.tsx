@@ -6,11 +6,12 @@ import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 
 import { IconButton } from "@/components/shared/icon-button";
-import { testimonials } from "@/constants/home";
+type Testimonial = { id: string; name: string; location: string | null; quote: string; rating: number };
 
-export function TestimonialCarousel() {
+export function TestimonialCarousel({ testimonials }: { testimonials: Testimonial[] }) {
   const [active, setActive] = useState(0);
   const testimonial = testimonials[active];
+  if (!testimonial) return null;
 
   function move(direction: 1 | -1) {
     setActive((current) => (current + direction + testimonials.length) % testimonials.length);

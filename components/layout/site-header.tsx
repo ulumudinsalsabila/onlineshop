@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { HeartIcon, ListIcon, MagnifyingGlassIcon, ShoppingBagIcon, UserCircleIcon } from "@phosphor-icons/react";
 import { AnimatePresence } from "motion/react";
@@ -16,7 +17,8 @@ import type { NavigationItem } from "@/types/storefront";
 import { AnnouncementBar } from "./announcement-bar";
 import { MegaMenu } from "./mega-menu";
 import { MobileNavigation } from "./mobile-navigation";
-import { SearchOverlay } from "./search-overlay";
+
+const SearchOverlay = dynamic(() => import("./search-overlay").then((module) => module.SearchOverlay));
 
 export function SiteHeader() {
   const { cartCount, wishlistIds, setCartOpen, hydrated } = useCommerce();
@@ -74,7 +76,7 @@ export function SiteHeader() {
           <button type="button" onClick={() => setSearchOpen(true)} className="hidden w-fit items-center gap-3 text-xs font-semibold tracking-[0.12em] text-muted-foreground uppercase transition-colors hover:text-foreground focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring lg:flex">
             <MagnifyingGlassIcon size={19} aria-hidden /> Search <kbd className="rounded border border-border bg-secondary px-1.5 py-0.5 font-sans text-[0.625rem]">/</kbd>
           </button>
-          <Link href="/" aria-label="Maison Élan, beranda" className="min-w-0 justify-self-center focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"><Logo compact /></Link>
+          <Link href="/" aria-label="IVORY, beranda" className="min-w-0 justify-self-center focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"><Logo compact /></Link>
           <div className="flex items-center justify-end gap-0.5">
             <div className="hidden items-center sm:flex">
               <HeaderUtilityLink href="/account" label="Account"><UserCircleIcon aria-hidden /></HeaderUtilityLink>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRightIcon, MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
@@ -11,15 +11,25 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { searchData } from "@/constants/storefront";
+import type { CatalogProduct } from "@/types/catalog";
 
 export function SearchOverlay({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const [query, setQuery] = useState("");
   const [recent, setRecent] = useState([...searchData.recent]);
+  const [products, setProducts] = useState<CatalogProduct[]>([]);
   const normalizedQuery = query.trim().toLowerCase();
-  const products = useMemo(
-    () => searchData.suggestedProducts.filter((product) => `${product.name} ${product.category}`.toLowerCase().includes(normalizedQuery)),
-    [normalizedQuery],
-  );
+
+  useEffect(() => {
+    if (!open) return;
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      void fetch(`/api/search?q=${encodeURIComponent(query.trim())}`, { signal: controller.signal })
+        .then((response) => response.json())
+        .then((result: { success: boolean; data?: { suggestions?: CatalogProduct[] } }) => { if (result.success) setProducts(result.data?.suggestions ?? []); })
+        .catch((error: unknown) => { if (!(error instanceof DOMException && error.name === "AbortError")) setProducts([]); });
+    }, 250);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [open, query]);
 
   const hasResults = !normalizedQuery || products.length > 0;
 
@@ -78,7 +88,7 @@ export function SearchOverlay({ open, onOpenChange }: { open: boolean; onOpenCha
               </div>
               <div className="grid gap-5 sm:grid-cols-3">
                 {products.map((product) => (
-                  <Link key={product.id} href={product.href} prefetch={false} onClick={() => onOpenChange(false)} className="group grid grid-cols-[5.5rem_1fr] gap-4 sm:block">
+                  <Link key={product.id} href={`/products/${product.slug}`} prefetch={false} onClick={() => onOpenChange(false)} className="group grid grid-cols-[5.5rem_1fr] gap-4 sm:block">
                     <div className="relative aspect-square overflow-hidden bg-secondary">
                       <Image src={product.image} alt={product.name} width={1254} height={1254} sizes="(max-width: 640px) 88px, 30vw" className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.025]" />
                     </div>

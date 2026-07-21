@@ -30,7 +30,7 @@ export function ProductPurchasePanel({ product, details }: { product: CatalogPro
   const discount = product.compareAt && product.compareAt > product.price ? Math.round((1 - product.price / product.compareAt) * 100) : 0;
 
   function add(openCart = true) {
-    const success = addToCart(product.id, { color, size, quantity, openCart });
+    const success = addToCart(product.id, { color, size, quantity, openCart, product });
     if (!success) { toast.error("Produk sedang tidak tersedia"); return false; }
     setAdded(true);
     window.setTimeout(() => setAdded(false), 1100);
@@ -109,4 +109,3 @@ export function ProductPurchasePanel({ product, details }: { product: CatalogPro
 function DetailRow({ label, value }: { label: string; value: string }) {
   return <div className="grid grid-cols-[7.5rem_1fr] gap-3"><dt className="text-muted-foreground">{label}</dt><dd>{value}</dd></div>;
 }
-

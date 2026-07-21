@@ -22,7 +22,7 @@ export function getProductDetails(product: CatalogProduct): ProductEditorialDeta
   };
   const material = product.categorySlug === "shoes" || product.categorySlug === "bags" || product.categorySlug === "men" ? "Premium leather and considered hardware" : product.name.toLowerCase().includes("scarf") ? "100% silk twill" : "Stainless steel, mineral glass, leather strap";
   return {
-    sku: `ME-${product.categorySlug.slice(0, 3).toUpperCase()}-${product.id.toUpperCase()}`,
+    sku: `IV-${product.categorySlug.slice(0, 3).toUpperCase()}-${product.id.toUpperCase()}`,
     description: categoryDescription[product.categorySlug] ?? "Pilihan premium dengan detail yang dibuat untuk bertahan melampaui musim.",
     specifications: [
       { label: "Material", value: material },
@@ -37,4 +37,3 @@ export function getProductDetails(product: CatalogProduct): ProductEditorialDeta
 function titleCase(value: string) {
   return value.replace(/(^|\s)\S/g, (letter) => letter.toUpperCase());
 }
-

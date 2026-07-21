@@ -1,0 +1,17 @@
+import { z } from "zod";
+
+const clean = (max: number) => z.string().trim().min(1).max(max).transform((value) => value.replace(/[<>]/g, "").replace(/\s+/g, " "));
+const optionalText = (max: number) => z.string().trim().max(max).transform((value) => value.replace(/[<>]/g, "")).optional().or(z.literal(""));
+const phone = z.string().trim().transform((value) => value.replace(/[\s()-]/g, "")).pipe(z.string().regex(/^(?:\+62|62|0)8[1-9][0-9]{6,11}$/));
+
+export const sellerApplicationSchema = z.object({ displayName: clean(100), phone, identityNumber: z.string().trim().min(8).max(40).regex(/^[0-9A-Z-]+$/i).optional().or(z.literal("")), bio: optionalText(1500), applicationNote: clean(2000), bankName: clean(80), bankAccountName: clean(100), bankAccountNumber: z.string().trim().regex(/^[0-9]{6,30}$/) });
+export const sellerProfileSchema = sellerApplicationSchema.pick({ displayName: true, phone: true, bio: true, bankName: true, bankAccountName: true, bankAccountNumber: true });
+export const submissionSchema = z.object({ title: clean(160), brandId: z.string().cuid().optional().or(z.literal("")), proposedBrand: optionalText(100), categoryId: z.string().cuid(), conditionLabel: z.enum(["PRISTINE", "EXCELLENT", "VERY_GOOD", "GOOD"]), completeness: clean(500), flawNotes: optionalText(2000), description: clean(5000), expectedPrice: z.coerce.number().int().min(100_000).max(10_000_000_000) }).refine((data) => Boolean(data.brandId || data.proposedBrand), { path: ["proposedBrand"], message: "Pilih brand atau isi usulan brand." });
+export const sellerSubmissionTransitionSchema = z.object({ status: z.enum(["SUBMITTED", "WAITING_FOR_ITEM", "CANCELLED"]), decision: z.enum(["ACCEPTED", "REJECTED"]).optional(), reason: optionalText(1000) });
+export const sellerApplicationReviewSchema = z.object({ status: z.enum(["APPROVED", "REJECTED", "SUSPENDED"]), reason: optionalText(1500), commissionRate: z.coerce.number().min(0).max(100).default(20) }).refine((data) => data.status === "APPROVED" || Boolean(data.reason), { path: ["reason"], message: "Alasan wajib diisi." });
+export const adminSubmissionReviewSchema = z.object({ status: z.enum(["UNDER_REVIEW", "NEEDS_REVISION", "APPROVED", "REJECTED", "INSPECTION", "READY_TO_LIST", "LISTED", "CANCELLED"]), reason: optionalText(2000), estimatedPrice: z.coerce.number().int().min(100_000).max(10_000_000_000).optional(), adminNotes: optionalText(2000) });
+export const inspectionSchema = z.object({ result: z.enum(["PASSED", "FAILED", "NEEDS_REVISION"]), checklist: z.object({ authenticity: z.boolean(), material: z.boolean(), hardware: z.boolean(), stitching: z.boolean(), odor: z.boolean(), functionality: z.boolean() }), notes: optionalText(3000), authenticityNote: optionalText(2000), recommendedPrice: z.coerce.number().int().min(100_000).max(10_000_000_000).optional() });
+export const commissionConfigSchema = z.object({ rate: z.coerce.number().min(0).max(100), fixedFee: z.coerce.number().int().nonnegative().max(100_000_000).default(0) });
+export const publishConsignmentSchema = z.object({ brandId: z.string().cuid(), categoryId: z.string().cuid(), listingPrice: z.coerce.number().int().min(100_000).max(10_000_000_000), productName: clean(160), slug: z.string().trim().min(2).max(120).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/) });
+export const payoutRequestSchema = z.object({ commissionIds: z.array(z.string().cuid()).min(1).max(100) });
+export const payoutProcessSchema = z.object({ status: z.enum(["PROCESSING", "PAID", "FAILED", "CANCELLED"]), providerRef: optionalText(150), reason: optionalText(1000) });

@@ -1,0 +1,6 @@
+import Link from "next/link";
+import { SellerPageHeader } from "@/components/seller/seller-page-header";
+import { requireSeller } from "@/lib/seller/auth";
+import { formatIDR } from "@/lib/formatters";
+import { prisma } from "@/lib/prisma";
+export default async function ListedPage() { const { seller } = await requireSeller(); const items = await prisma.consignmentSubmission.findMany({ where: { sellerId: seller.id, status: "LISTED" }, include: { product: true }, orderBy: { listedAt: "desc" } }); return <div><SellerPageHeader title="Listed products" description="Produk yang sudah lolos kurasi dan sedang tersedia di storefront." /><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{items.map((item) => <article key={item.id} className="border border-[#ddd5c7] bg-[#faf8f3] p-5"><p className="text-xs text-muted-foreground">{item.submissionNumber}</p><h2 className="mt-2 font-serif text-2xl">{item.product?.name ?? item.title}</h2><p className="mt-3 text-sm">{formatIDR(Number(item.product?.price ?? item.agreedPrice))}</p>{item.product && <Link href={`/products/${item.product.slug}`} className="mt-5 inline-block text-xs font-semibold tracking-wider uppercase underline">View listing</Link>}</article>)}{!items.length && <p className="text-sm text-muted-foreground">Belum ada produk aktif.</p>}</div></div>; }

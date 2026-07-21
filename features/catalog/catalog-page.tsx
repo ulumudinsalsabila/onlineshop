@@ -5,7 +5,7 @@ import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import { Container } from "@/components/shared/container";
 import { StorefrontBreadcrumb } from "@/components/shared/storefront-breadcrumb";
 import { Button } from "@/components/ui/button";
-import { catalogProducts, popularCatalogKeywords } from "@/constants/catalog";
+import { popularCatalogKeywords } from "@/constants/catalog";
 import { queryToSearchParams, parseCatalogQuery } from "@/lib/catalog-query";
 import type { CatalogPageConfig, RawCatalogSearchParams } from "@/types/catalog";
 import { ProductCard } from "@/features/home/product-card";
@@ -32,7 +32,7 @@ async function CatalogPageContent({ config, pathname, searchParams }: CatalogRou
   const response = await getCatalogProducts(query, config.preset);
   const resolvedQuery = { ...query, page: response.page };
   const queryKey = queryToSearchParams(resolvedQuery).toString() || "all";
-  const suggestions = catalogProducts.flatMap((product) => [product.name, product.brand, product.category]);
+  const suggestions = [...response.items, ...response.recommendations].flatMap((product) => [product.name, product.brand, product.category]);
   const heading = config.searchMode && query.q ? `Hasil untuk “${query.q}”` : config.title;
 
   return (
@@ -77,4 +77,3 @@ async function CatalogPageContent({ config, pathname, searchParams }: CatalogRou
     </div>
   );
 }
-

@@ -1,0 +1,15 @@
+import Link from "next/link";
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
+
+import { AdminDataTable } from "@/components/admin/admin-data-table";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import type { ConsignmentStatus } from "@/generated/prisma/client";
+import { requireAdmin } from "@/lib/admin/auth";
+import { ADMIN_PAGE_SIZE, parseAdminQuery, type AdminSearchParams } from "@/lib/admin/query";
+import { formatIDR } from "@/lib/formatters";
+import { prisma } from "@/lib/prisma";
+
+const statuses: ConsignmentStatus[] = ["DRAFT", "SUBMITTED", "UNDER_REVIEW", "NEEDS_REVISION", "APPROVED", "REJECTED", "WAITING_FOR_ITEM", "INSPECTION", "READY_TO_LIST", "LISTED", "SOLD", "COMPLETED", "CANCELLED"];
+export default async function SubmissionListPage({ searchParams }: { searchParams: AdminSearchParams }) { await requireAdmin("sellers:read"); const query = await parseAdminQuery(searchParams); const status = statuses.includes(query.status as ConsignmentStatus) ? query.status as ConsignmentStatus : undefined; const where = { ...(status ? { status } : {}), ...(query.q ? { OR: [{ title: { contains: query.q, mode: "insensitive" as const } }, { submissionNumber: { contains: query.q, mode: "insensitive" as const } }, { seller: { displayName: { contains: query.q, mode: "insensitive" as const } } }] } : {}) }; const [items, total] = await prisma.$transaction([prisma.consignmentSubmission.findMany({ where, orderBy: { updatedAt: "desc" }, skip: (query.page - 1) * ADMIN_PAGE_SIZE, take: ADMIN_PAGE_SIZE, include: { seller: true, _count: { select: { images: true } } } }), prisma.consignmentSubmission.count({ where })]); return <div><AdminPageHeader title="Consignment submissions" description="Setiap produk harus melewati review, penerimaan barang, dan inspeksi sebelum listing." breadcrumbs={[{ label: "Sellers", href: "/admin/sellers" }, { label: "Submissions" }]} /><AdminDataTable columns={[{ key: "submission", label: "Submission" }, { key: "seller", label: "Seller" }, { key: "price", label: "Expected" }, { key: "images", label: "Images" }, { key: "status", label: "Status" }, { key: "action", label: "" }]} rows={items.map((item) => ({ id: item.id, cells: { submission: <div><p className="font-semibold">{item.title}</p><p className="text-xs text-muted-foreground">{item.submissionNumber}</p></div>, seller: item.seller.displayName, price: formatIDR(Number(item.expectedPrice)), images: item._count.images, status: <Badge variant="outline">{item.status}</Badge>, action: <Button asChild size="icon-sm" variant="ghost"><Link href={`/admin/sellers/submissions/${item.id}`} aria-label={`Review ${item.title}`}><ArrowRightIcon aria-hidden /></Link></Button> } }))} page={query.page} total={total} totalPages={Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE))} filters={statuses.map((value) => ({ value, label: value.replaceAll("_", " ") }))} /></div>; }

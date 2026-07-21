@@ -6,8 +6,8 @@ import {
   catalogColors,
   catalogSizes,
   catalogSortOptions,
-} from "@/constants/catalog";
-import type { CatalogCondition, CatalogQuery, RawCatalogSearchParams } from "@/types/catalog";
+} from "../constants/catalog";
+import type { CatalogCondition, CatalogQuery, RawCatalogSearchParams } from "../types/catalog";
 
 const validCategories = new Set<string>(catalogCategories.map((item) => item.value));
 const validBrands = new Set<string>(catalogBrands.map((item) => item.value));
@@ -67,4 +67,3 @@ export function queryToSearchParams(query: CatalogQuery): URLSearchParams {
   if (query.page > 1) params.set("page", String(query.page));
   return params;
 }
-

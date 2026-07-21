@@ -1,5 +1,5 @@
 export const SITE_CONFIG = {
-  name: "Maison Élan",
-  shortName: "MÉ",
+  name: "IVORY",
+  shortName: "IV",
   description: "Fashion premium dengan sudut pandang modern dan editorial.",
 } as const;

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { catalogCategories } from "@/constants/catalog";
 import { CatalogRoutePage } from "@/features/catalog";
+import { catalogMetadata } from "@/lib/catalog-metadata";
+import { findCategoryBySlug } from "@/lib/data/products";
 import type { RawCatalogSearchParams } from "@/types/catalog";
 
 const categoryCopy: Record<string, string> = {
@@ -12,20 +13,15 @@ const categoryCopy: Record<string, string> = {
   men: "Leather goods dan footwear pria dengan bentuk bersih, material bernuansa, dan fungsi yang dipertimbangkan.",
 };
 
-export function generateStaticParams() {
-  return catalogCategories.map((category) => ({ slug: category.value }));
-}
-
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<RawCatalogSearchParams> }): Promise<Metadata> {
   const { slug } = await params;
-  const category = catalogCategories.find((item) => item.value === slug);
-  return category ? { title: category.label, description: categoryCopy[slug] } : { title: "Category" };
+  const category = await findCategoryBySlug(slug);
+  return category ? catalogMetadata({ title: category.name, description: category.description ?? categoryCopy[slug] ?? `Koleksi ${category.name} IVORY.`, pathname: `/category/${slug}`, searchParams, preset: { categories: [slug] } }) : { title: "Category", robots: { index: false, follow: false } };
 }
 
 export default async function CategoryPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<RawCatalogSearchParams> }) {
   const { slug } = await params;
-  const category = catalogCategories.find((item) => item.value === slug);
+  const category = await findCategoryBySlug(slug);
   if (!category) notFound();
-  return <CatalogRoutePage pathname={`/category/${slug}`} searchParams={searchParams} config={{ title: category.label, eyebrow: "Shop by category", description: categoryCopy[slug] ?? "Pilihan terkurasi untuk melengkapi gaya Anda.", breadcrumbs: [{ label: "Home", href: "/" }, { label: "Products", href: "/products" }, { label: category.label }], preset: { categories: [slug] }, lockedFilters: ["category"] }} />;
+  return <CatalogRoutePage pathname={`/category/${slug}`} searchParams={searchParams} config={{ title: category.name, eyebrow: "Shop by category", description: category.description ?? categoryCopy[slug] ?? "Pilihan terkurasi untuk melengkapi gaya Anda.", breadcrumbs: [{ label: "Home", href: "/" }, { label: "Products", href: "/products" }, { label: category.name }], preset: { categories: [slug] }, lockedFilters: ["category"] }} />;
 }
-

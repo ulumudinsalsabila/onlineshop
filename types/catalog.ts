@@ -12,6 +12,7 @@ export interface CatalogProduct extends StoreProduct {
   stock: number;
   createdAt: string;
   salesCount: number;
+  variants?: Array<{ id: string; sku: string; name: string; color: string | null; colorHex?: string | null; size: string | null; price: number; stock: number }>;
 }
 
 export interface CatalogQuery {
@@ -57,4 +58,3 @@ export interface CatalogResponse {
 }
 
 export type RawCatalogSearchParams = Record<string, string | string[] | undefined>;
-

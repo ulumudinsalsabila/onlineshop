@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import { WishlistPage } from "@/features/wishlist";
+export const metadata: Metadata = { title: "Wishlist", description: "Produk pilihan yang Anda simpan untuk dilihat kembali.", robots: { index: false, follow: false, nocache: true } };
 
-export const metadata: Metadata = { title: "Wishlist", description: "Produk pilihan yang Anda simpan untuk dilihat kembali." };
-
-export default function Page() { return <WishlistPage />; }
-
+export default function Page() { redirect("/account/wishlist"); }

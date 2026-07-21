@@ -19,7 +19,7 @@ export function isQuantityAvailable(quantity: number, stock: number): boolean {
 export function resolveCartLines(records: CartItemRecord[], products: CatalogProduct[]): ResolvedCartLine[] {
   const productMap = new Map(products.map((product) => [product.id, product]));
   return records.flatMap((record) => {
-    const product = productMap.get(record.productId);
+    const product = record.productSnapshot ?? productMap.get(record.productId);
     if (!product) return [];
     const availableStock = Math.max(0, product.stock);
     const quantity = availableStock > 0 ? clampQuantity(record.quantity, availableStock) : Math.max(1, Math.floor(record.quantity) || 1);
@@ -39,4 +39,3 @@ export function calculateCartTotals(lines: ResolvedCartLine[], voucher = ""): Ca
 export function createCartItemId(productId: string, color: string, size: string): string {
   return [productId, color || "default", size || "default"].join(":");
 }
-

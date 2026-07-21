@@ -3,9 +3,11 @@ import type { CatalogProduct } from "@/types/catalog";
 export interface CartItemRecord {
   id: string;
   productId: string;
+  variantId?: string;
   color: string;
   size: string;
   quantity: number;
+  productSnapshot?: CatalogProduct;
 }
 
 export interface ResolvedCartLine extends CartItemRecord {
@@ -46,4 +48,3 @@ export interface ProductEditorialDetails {
   purchaseYear?: number;
   authenticationStatus?: string;
 }
-

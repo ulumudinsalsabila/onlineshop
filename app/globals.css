@@ -91,3 +91,15 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+@media print {
+  aside,
+  header,
+  nav,
+  .print\:hidden {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+}
