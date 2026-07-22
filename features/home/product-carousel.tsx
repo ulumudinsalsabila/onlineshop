@@ -38,7 +38,7 @@ export function ProductCarousel({ products, label }: { products: StoreProduct[];
   return (
     <div>
       <div className="mb-5 flex justify-end gap-2">
-        <IconButton aria-label={`Sebelumnya pada ${label}`} variant="outline" onClick={() => move(-1)} disabled={!canGoBack}><ArrowLeftIcon aria-hidden /></IconButton>
+        <IconButton aria-label={`Previous in ${label}`} variant="outline" onClick={() => move(-1)} disabled={!canGoBack}><ArrowLeftIcon aria-hidden /></IconButton>
         <IconButton aria-label={`Berikutnya pada ${label}`} variant="outline" onClick={() => move(1)} disabled={!canGoForward}><ArrowRightIcon aria-hidden /></IconButton>
       </div>
       <m.ul

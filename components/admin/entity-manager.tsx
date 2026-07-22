@@ -20,20 +20,147 @@ import { Input } from "@/components/ui/input";
 type Entity = "categories" | "brands" | "vouchers" | "banners" | "testimonials";
 type FormValue = string | number | boolean | null | undefined | Date;
 type Values = Record<string, FormValue>;
-export type EntityField = { name: string; label: string; type?: "text" | "number" | "textarea" | "checkbox" | "datetime-local" | "select"; options?: { value: string; label: string }[] };
-const schemas: Record<Entity, z.ZodType> = { categories: categoryAdminSchema, brands: brandAdminSchema, vouchers: voucherAdminSchema, banners: bannerAdminSchema, testimonials: testimonialAdminSchema };
-
-const entityResolver = (entity: Entity): Resolver<Values> => async (values) => {
-  const parsed = schemas[entity].safeParse(values);
-  if (parsed.success) return { values: parsed.data as Values, errors: {} };
-  return { values: {}, errors: Object.fromEntries(parsed.error.issues.map((issue) => [String(issue.path[0]), { type: issue.code, message: issue.message }])) };
+export type EntityField = {
+  name: string;
+  label: string;
+  type?: "text" | "number" | "textarea" | "checkbox" | "datetime-local" | "select";
+  options?: { value: string; label: string }[];
+};
+const schemas: Record<Entity, z.ZodType> = {
+  categories: categoryAdminSchema,
+  brands: brandAdminSchema,
+  vouchers: voucherAdminSchema,
+  banners: bannerAdminSchema,
+  testimonials: testimonialAdminSchema,
 };
 
+const entityResolver =
+  (entity: Entity): Resolver<Values> =>
+  async (values) => {
+    const parsed = schemas[entity].safeParse(values);
+    if (parsed.success) return { values: parsed.data as Values, errors: {} };
+    return {
+      values: {},
+      errors: Object.fromEntries(parsed.error.issues.map((issue) => [String(issue.path[0]), { type: issue.code, message: issue.message }])),
+    };
+  };
+
 export function EntityManager({ entity, fields, defaults, initial, triggerLabel = "Add new" }: { entity: Entity; fields: EntityField[]; defaults: Values; initial?: Values & { id: string }; triggerLabel?: string }) {
-  const router = useRouter(); const [open, setOpen] = useState(false); const [busy, setBusy] = useState(false);
-  const form = useForm<Values>({ resolver: entityResolver(entity), defaultValues: initial ?? defaults });
-  useEffect(() => { const warning = (event: BeforeUnloadEvent) => { if (open && form.formState.isDirty) event.preventDefault(); }; window.addEventListener("beforeunload", warning); return () => window.removeEventListener("beforeunload", warning); }, [form.formState.isDirty, open]);
-  async function save(values: Values) { setBusy(true); try { const response = await apiFetch(`/api/admin/entities/${entity}`, { method: initial ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(initial ? { ...values, id: initial.id } : values) }); const result = await response.json() as { success?: boolean; error?: { message?: string } }; if (!result.success) throw new Error(result.error?.message); toast.success("Data berhasil disimpan."); form.reset(values); setOpen(false); router.refresh(); } catch (error) { toast.error(error instanceof Error ? error.message : "Data gagal disimpan."); } finally { setBusy(false); } }
-  return <Dialog open={open} onOpenChange={setOpen}><DialogTrigger asChild>{initial ? <Button size="icon-sm" variant="ghost" aria-label="Edit"><PencilSimpleIcon aria-hidden /></Button> : <Button><PlusIcon aria-hidden />{triggerLabel}</Button>}</DialogTrigger><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl"><DialogHeader><DialogTitle className="font-serif text-3xl">{initial ? "Edit" : "Create"} {entity.slice(0, -1)}</DialogTitle><DialogDescription>Input divalidasi kembali oleh server. Perubahan akan dicatat.</DialogDescription></DialogHeader><Form {...form}><form onSubmit={form.handleSubmit(save)} className="mt-4 grid gap-4 sm:grid-cols-2">{fields.map((field) => <FormField key={field.name} control={form.control} name={field.name} render={({ field: control }) => <FormItem className={field.type === "textarea" ? "sm:col-span-2" : ""}><FormLabel>{field.label}</FormLabel><FormControl>{field.type === "checkbox" ? <Checkbox checked={Boolean(control.value)} onCheckedChange={control.onChange} /> : field.type === "textarea" ? <textarea name={control.name} ref={control.ref} onBlur={control.onBlur} value={String(control.value ?? "")} onChange={control.onChange} className="min-h-28 w-full rounded-md border border-input bg-white p-3 text-sm" /> : field.type === "select" ? <select name={control.name} ref={control.ref} onBlur={control.onBlur} value={String(control.value ?? "")} onChange={control.onChange} className="h-11 w-full rounded-md border border-input bg-white px-3 text-sm"><option value="">None</option>{field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : <Input {...control} value={control.value instanceof Date ? toLocal(control.value) : String(control.value ?? "")} type={field.type ?? "text"} />}</FormControl><FormMessage /></FormItem>} />)}{fields.some((field) => /imageUrl|logoUrl/.test(field.name)) && <div className="aspect-[16/8] bg-[#ebe6dc] bg-cover bg-center sm:col-span-2" style={form.watch(fields.find((field) => /imageUrl|logoUrl/.test(field.name))!.name) ? { backgroundImage: `url(${String(form.watch(fields.find((field) => /imageUrl|logoUrl/.test(field.name))!.name))})` } : undefined} aria-label="Image preview" />}<Button disabled={busy} className="sm:col-span-2">{busy && <SpinnerGapIcon className="animate-spin" aria-hidden />}Save</Button></form></Form></DialogContent></Dialog>;
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const form = useForm<Values>({
+    resolver: entityResolver(entity),
+    defaultValues: initial ?? defaults,
+  });
+  useEffect(() => {
+    const warning = (event: BeforeUnloadEvent) => {
+      if (open && form.formState.isDirty) event.preventDefault();
+    };
+    window.addEventListener("beforeunload", warning);
+    return () => window.removeEventListener("beforeunload", warning);
+  }, [form.formState.isDirty, open]);
+  async function save(values: Values) {
+    setBusy(true);
+    try {
+      const response = await apiFetch(`/api/admin/entities/${entity}`, {
+        method: initial ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(initial ? { ...values, id: initial.id } : values),
+      });
+      const result = (await response.json()) as {
+        success?: boolean;
+        error?: { message?: string };
+      };
+      if (!result.success) throw new Error(result.error?.message);
+      toast.success("Data saved successfully.");
+      form.reset(values);
+      setOpen(false);
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not save the data.");
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {initial ? (
+          <Button size="icon-sm" variant="ghost" aria-label="Edit">
+            <PencilSimpleIcon aria-hidden />
+          </Button>
+        ) : (
+          <Button>
+            <PlusIcon aria-hidden />
+            {triggerLabel}
+          </Button>
+        )}
+      </DialogTrigger>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="font-serif text-3xl">
+            {initial ? "Edit" : "Create"} {entity.slice(0, -1)}
+          </DialogTitle>
+          <DialogDescription>Input is revalidated by the server. Changes are recorded.</DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(save)} className="mt-4 grid gap-4 sm:grid-cols-2">
+            {fields.map((field) => (
+              <FormField
+                key={field.name}
+                control={form.control}
+                name={field.name}
+                render={({ field: control }) => (
+                  <FormItem className={field.type === "textarea" ? "sm:col-span-2" : ""}>
+                    <FormLabel>{field.label}</FormLabel>
+                    <FormControl>
+                      {field.type === "checkbox" ? (
+                        <Checkbox checked={Boolean(control.value)} onCheckedChange={control.onChange} />
+                      ) : field.type === "textarea" ? (
+                        <textarea name={control.name} ref={control.ref} onBlur={control.onBlur} value={String(control.value ?? "")} onChange={control.onChange} className="min-h-28 w-full rounded-md border border-input bg-white p-3 text-sm" />
+                      ) : field.type === "select" ? (
+                        <select name={control.name} ref={control.ref} onBlur={control.onBlur} value={String(control.value ?? "")} onChange={control.onChange} className="h-11 w-full rounded-md border border-input bg-white px-3 text-sm">
+                          <option value="">None</option>
+                          {field.options?.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <Input {...control} value={control.value instanceof Date ? toLocal(control.value) : String(control.value ?? "")} type={field.type ?? "text"} />
+                      )}
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ))}
+            {fields.some((field) => /imageUrl|logoUrl/.test(field.name)) && (
+              <div
+                className="aspect-[16/8] bg-[#ebe6dc] bg-cover bg-center sm:col-span-2"
+                style={
+                  form.watch(fields.find((field) => /imageUrl|logoUrl/.test(field.name))!.name)
+                    ? {
+                        backgroundImage: `url(${String(form.watch(fields.find((field) => /imageUrl|logoUrl/.test(field.name))!.name))})`,
+                      }
+                    : undefined
+                }
+                aria-label="Image preview"
+              />
+            )}
+            <Button disabled={busy} className="sm:col-span-2">
+              {busy && <SpinnerGapIcon className="animate-spin" aria-hidden />}
+              Save
+            </Button>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
 }
-function toLocal(date: Date) { const offset = date.getTimezoneOffset(); return new Date(date.getTime() - offset * 60_000).toISOString().slice(0, 16); }
+function toLocal(date: Date) {
+  const offset = date.getTimezoneOffset();
+  return new Date(date.getTime() - offset * 60_000).toISOString().slice(0, 16);
+}

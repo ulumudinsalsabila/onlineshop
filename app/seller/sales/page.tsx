@@ -1,3 +1,44 @@
-import { SellerPageHeader } from "@/components/seller/seller-page-header"; import { Badge } from "@/components/ui/badge"; import { authenticatedBackendApi } from "@/lib/authenticated-backend-api"; import { formatIDR } from "@/lib/formatters"; import { requireSeller } from "@/lib/seller/auth"; import type { SellerSale } from "@/types/seller-api";
-export default async function SalesPage() { await requireSeller(); const items = (await authenticatedBackendApi<SellerSale[]>("/seller/sales", { cache: "no-store" })).data; return <div><SellerPageHeader title="Sales" description="Net seller dihitung server dari nilai transaksi final dan konfigurasi komisi." /><div className="border border-[#ddd5c7] bg-[#faf8f3]">{items.map((item) => <div key={item.id} className="grid gap-3 border-b border-[#ddd5c7] p-5 last:border-0 sm:grid-cols-4"><div><p className="font-semibold">{item.title}</p><p className="text-xs text-muted-foreground">{item.submissionNumber}</p></div><Value label="Gross" value={item.commission?.grossAmount ? formatIDR(Number(item.commission.grossAmount)) : "Pending"} /><Value label="Commission" value={item.commission?.commissionAmount ? formatIDR(Number(item.commission.commissionAmount)) : "Pending"} /><div className="text-right"><Badge>{item.status}</Badge><p className="mt-2 text-sm font-semibold">{item.commission?.sellerNetAmount ? formatIDR(Number(item.commission.sellerNetAmount)) : "—"}</p></div></div>)}{!items.length && <p className="p-10 text-center text-sm text-muted-foreground">Belum ada penjualan.</p>}</div></div>; }
-function Value({ label, value }: { label: string; value: string }) { return <div><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 text-sm">{value}</p></div>; }
+import { SellerPageHeader } from "@/components/seller/seller-page-header";
+import { Badge } from "@/components/ui/badge";
+import { authenticatedBackendApi } from "@/lib/authenticated-backend-api";
+import { formatIDR } from "@/lib/formatters";
+import { requireSeller } from "@/lib/seller/auth";
+import type { SellerSale } from "@/types/seller-api";
+export default async function SalesPage() {
+  await requireSeller();
+  const items = (
+    await authenticatedBackendApi<SellerSale[]>("/seller/sales", {
+      cache: "no-store",
+    })
+  ).data;
+  return (
+    <div>
+      <SellerPageHeader title="Sales" description="Seller net proceeds are calculated by the server from the final transaction value and commission settings." />
+      <div className="border border-[#ddd5c7] bg-[#faf8f3]">
+        {items.map((item) => (
+          <div key={item.id} className="grid gap-3 border-b border-[#ddd5c7] p-5 last:border-0 sm:grid-cols-4">
+            <div>
+              <p className="font-semibold">{item.title}</p>
+              <p className="text-xs text-muted-foreground">{item.submissionNumber}</p>
+            </div>
+            <Value label="Gross" value={item.commission?.grossAmount ? formatIDR(Number(item.commission.grossAmount)) : "Pending"} />
+            <Value label="Commission" value={item.commission?.commissionAmount ? formatIDR(Number(item.commission.commissionAmount)) : "Pending"} />
+            <div className="text-right">
+              <Badge>{item.status}</Badge>
+              <p className="mt-2 text-sm font-semibold">{item.commission?.sellerNetAmount ? formatIDR(Number(item.commission.sellerNetAmount)) : "—"}</p>
+            </div>
+          </div>
+        ))}
+        {!items.length && <p className="p-10 text-center text-sm text-muted-foreground">No sales yet.</p>}
+      </div>
+    </div>
+  );
+}
+function Value({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-1 text-sm">{value}</p>
+    </div>
+  );
+}

@@ -155,9 +155,9 @@ async function hasAuthenticatedSession(): Promise<boolean> {
 
 async function syncCommerceFromDatabase(setCart: React.Dispatch<React.SetStateAction<CartItemRecord[]>>, setWishlistIds: React.Dispatch<React.SetStateAction<string[]>>, setWishlistItemIds: React.Dispatch<React.SetStateAction<Record<string, string>>>) {
   try {
-    const [cartResponse, wishlistResponse] = await Promise.all([apiFetch("/api/cart"), apiFetch("/api/wishlist")]);
+    const [cartResponse, wishlistResponse] = await Promise.all([apiFetch("/api/cart"), apiFetch("/api/wishlist?limit=100")]);
     if (cartResponse.ok) { const cart = await cartResponse.json() as { success?: boolean; data?: RemoteCart }; if (cart.success && cart.data) setCart(remoteCartRecords(cart.data)); }
-    if (wishlistResponse.ok) { const wishlist = await wishlistResponse.json() as { success?: boolean; data?: { items?: Array<{ id: string; product: { id: string } }> } }; const items = wishlist.data?.items ?? []; if (wishlist.success) { setWishlistIds(items.map((item) => item.product.id)); setWishlistItemIds(Object.fromEntries(items.map((item) => [item.product.id, item.id]))); } }
+    if (wishlistResponse.ok) { const wishlist = await wishlistResponse.json() as { success?: boolean; data?: Array<{ id: string; product: { id: string } }> | { items?: Array<{ id: string; product: { id: string } }> } }; const items = Array.isArray(wishlist.data) ? wishlist.data : wishlist.data?.items ?? []; if (wishlist.success) { setWishlistIds(items.map((item) => item.product.id)); setWishlistItemIds(Object.fromEntries(items.map((item) => [item.product.id, item.id]))); } }
   } catch { /* Guest and offline states continue to use the local repository. */ }
 }
 

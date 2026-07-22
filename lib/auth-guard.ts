@@ -16,6 +16,12 @@ export async function requireUser() {
   return user;
 }
 
+export async function requireCustomer() {
+  const user = await requireUser();
+  if (user.role === "ADMIN" || user.role === "STAFF") redirect("/admin");
+  return user;
+}
+
 export async function requireRole(roles: UserRole[]) {
   const user = await requireUser();
   if (!roles.includes(user.role)) redirect("/account");

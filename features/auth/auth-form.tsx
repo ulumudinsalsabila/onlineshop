@@ -14,12 +14,24 @@ import { Label } from "@/components/ui/label";
 
 type Mode = "login" | "register" | "forgot" | "reset";
 
-export function AuthForm({ mode, callbackUrl = "/account", email = "", token = "", verified = false, invalidToken = false }: { mode: Mode; callbackUrl?: string; email?: string; token?: string; verified?: boolean; invalidToken?: boolean }) {
+export function AuthForm({ mode, callbackUrl = "/account", email = "", token = "", verified = false, invalidToken = false, registered = false, verificationEmailFailed = false }: { mode: Mode; callbackUrl?: string; email?: string; token?: string; verified?: boolean; invalidToken?: boolean; registered?: boolean; verificationEmailFailed?: boolean }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
-  const [message, setMessage] = useState(verified ? "Your email has been verified. You can now sign in." : invalidToken ? "This verification link is invalid or has expired." : "");
-  const [success, setSuccess] = useState(verified);
+  const [message, setMessage] = useState(verified ? "Your email has been verified. You can now sign in." : verificationEmailFailed ? "Your account was created, but the verification email could not be delivered. Please resend it." : registered ? "Registration successful. Check your email to verify the account, then sign in." : invalidToken ? "This verification link is invalid or has expired." : "");
+  const [success, setSuccess] = useState(verified || (registered && !verificationEmailFailed));
   const [showPassword, setShowPassword] = useState(false);
+
+  async function resendVerification() {
+    if (!email) return;
+    setPending(true); setMessage(""); setSuccess(false);
+    try {
+      const response = await apiFetch("/api/auth/resend-verification", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
+      const result = await response.json() as { success: boolean; data?: { message?: string }; error?: { message?: string } };
+      if (!response.ok || !result.success) throw new Error(result.error?.message ?? "The verification email could not be sent.");
+      setSuccess(true); setMessage(result.data?.message ?? "The verification email has been sent.");
+    } catch (error) { setMessage(error instanceof Error ? error.message : "The verification email could not be sent."); }
+    finally { setPending(false); }
+  }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); setPending(true); setMessage(""); setSuccess(false);
@@ -27,21 +39,23 @@ export function AuthForm({ mode, callbackUrl = "/account", email = "", token = "
     try {
       if (mode === "login") {
         const response = await apiFetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ email: values.email, password: values.password }) });
-        const result = await response.json() as { success: boolean; data?: { accessToken?: string }; error?: { message?: string } };
+        const result = await response.json() as { success: boolean; data?: { accessToken?: string; user?: { role?: "CUSTOMER" | "STAFF" | "ADMIN" } }; error?: { message?: string } };
         if (!response.ok || !result.success) throw new Error(result.error?.message ?? "Incorrect email or password.");
-        if (!result.data?.accessToken) throw new Error("Backend tidak mengembalikan access token.");
+        if (!result.data?.accessToken) throw new Error("The backend did not return an access token.");
         setApiAccessToken(result.data.accessToken);
-        router.push(safeRedirectPath(callbackUrl)); router.refresh(); return;
+        const destination = ["ADMIN", "STAFF"].includes(result.data.user?.role ?? "") ? "/admin" : safeRedirectPath(callbackUrl);
+        router.replace(destination); router.refresh(); return;
       }
       const endpoint = mode === "register" ? "/api/auth/register" : mode === "forgot" ? "/api/auth/forgot-password" : "/api/auth/reset-password";
       const body = mode === "reset" ? { ...values, email, token } : values;
       const response = await apiFetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      const result = await response.json() as { success: boolean; data?: { message?: string }; error?: { message?: string; details?: { fieldErrors?: Record<string, string[]> } } };
+      const result = await response.json() as { success: boolean; data?: { message?: string; verificationEmailSent?: boolean }; error?: { message?: string; details?: { fieldErrors?: Record<string, string[]> } } };
       if (!response.ok || !result.success) {
         const firstFieldError = result.error?.details?.fieldErrors ? Object.values(result.error.details.fieldErrors).flat()[0] : undefined;
         throw new Error(firstFieldError ?? result.error?.message ?? "Your request could not be processed.");
       }
       setSuccess(true); setMessage(result.data?.message ?? "Done.");
+      if (mode === "register") { router.replace(`/login?registered=true&email=${encodeURIComponent(String(values.email ?? ""))}&emailSent=${result.data?.verificationEmailSent === false ? "false" : "true"}`); return; }
       if (mode === "reset") window.setTimeout(() => router.push("/login"), 1200);
     } catch (error) { setMessage(error instanceof Error ? error.message : "Something went wrong."); } finally { setPending(false); }
   }
@@ -49,12 +63,13 @@ export function AuthForm({ mode, callbackUrl = "/account", email = "", token = "
   return (
     <form onSubmit={submit} className="mt-8 space-y-5">
       {mode === "register" ? <Field id="name" label="Full name" autoComplete="name" /> : null}
-      {mode !== "reset" ? <Field id="email" label="Email" type="email" autoComplete="email" /> : <p className="border border-border bg-secondary/40 px-4 py-3 text-sm">Reset password for <strong>{email}</strong></p>}
+      {mode !== "reset" ? <Field id="email" label="Email" type="email" autoComplete="email" defaultValue={email} /> : <p className="border border-border bg-secondary/40 px-4 py-3 text-sm">Reset password for <strong>{email}</strong></p>}
       {mode === "login" || mode === "register" || mode === "reset" ? (
         <div><Label htmlFor="password">Password</Label><div className="relative mt-2"><Input id="password" name="password" type={showPassword ? "text" : "password"} autoComplete={mode === "login" ? "current-password" : "new-password"} required minLength={mode === "login" ? 1 : 10} className="pr-12" /><button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Hide password" : "Show password"} className="absolute inset-y-0 right-0 grid w-11 place-items-center"><span aria-hidden>{showPassword ? <EyeSlashIcon /> : <EyeIcon />}</span></button></div></div>
       ) : null}
       {mode === "register" || mode === "reset" ? <Field id="confirmPassword" label="Confirm password" type={showPassword ? "text" : "password"} autoComplete="new-password" minLength={10} /> : null}
       {message ? <p role="status" className={`flex gap-2 border px-4 py-3 text-sm ${success ? "border-emerald-700/30 bg-emerald-700/8 text-emerald-900" : "border-destructive/30 bg-destructive/8 text-destructive"}`}>{success ? <CheckCircleIcon className="mt-0.5 shrink-0" aria-hidden /> : null}{message}</p> : null}
+      {mode === "login" && registered && email ? <Button type="button" variant="outline" className="w-full" disabled={pending} onClick={() => void resendVerification()}>Resend verification email</Button> : null}
       <Button type="submit" size="lg" className="w-full" disabled={pending}>{pending ? "Processing…" : mode === "login" ? "Sign in" : mode === "register" ? "Create account" : mode === "forgot" ? "Send reset link" : "Update password"}<ArrowRightIcon aria-hidden /></Button>
       {mode === "login" ? <div className="flex justify-between text-xs"><Link href="/register" className="underline-offset-4 hover:underline">Create account</Link><Link href="/forgot-password" className="underline-offset-4 hover:underline">Forgot password?</Link></div> : null}
       {mode !== "login" ? <p className="text-center text-xs text-muted-foreground">Already have an account? <Link href="/login" className="text-foreground underline underline-offset-4">Sign in</Link></p> : null}

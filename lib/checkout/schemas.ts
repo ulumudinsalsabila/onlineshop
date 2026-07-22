@@ -5,6 +5,7 @@ import { addressSchema } from "@/lib/address-schema";
 export const paymentMethodSchema = z.enum(["BANK_TRANSFER", "CREDIT_CARD", "E_WALLET", "VIRTUAL_ACCOUNT"]);
 
 export const shippingSelectionSchema = z.object({
+  destinationId: z.coerce.number().int().positive(),
   courierCode: z.string().trim().min(2).max(30).regex(/^[a-z0-9_-]+$/i),
   serviceCode: z.string().trim().min(1).max(50).regex(/^[a-z0-9 _-]+$/i),
 });
@@ -18,7 +19,4 @@ export const checkoutSchema = z.object({
   notes: z.string().trim().max(500).transform((value) => value.replace(/[<>]/g, "")).optional(),
 }).refine((data) => Boolean(data.addressId || data.address), { message: "Select or add a shipping address.", path: ["addressId"] });
 
-export const ratesSchema = z.object({
-  postalCode: z.string().regex(/^\d{5}$/),
-  courierCodes: z.array(z.enum(["jne", "sicepat", "anteraja", "jnt"])).max(4).default(["jne", "sicepat", "anteraja"]),
-});
+export const ratesSchema = z.object({ destinationId: z.coerce.number().int().positive(), cartId: z.string().cuid() });

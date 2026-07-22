@@ -70,19 +70,31 @@ export function SiteHeader() {
         <AnnouncementBar />
         <Container className="grid h-16 grid-cols-3 items-center gap-2 px-3 sm:h-20 sm:gap-4 sm:px-(--container-gutter)">
           <div className="flex items-center gap-1 lg:hidden">
-            <IconButton aria-label="Open menu" variant="ghost" onClick={() => setMobileOpen(true)}><ListIcon size={21} aria-hidden /></IconButton>
-            <IconButton aria-label="Search" variant="ghost" onClick={() => setSearchOpen(true)}><MagnifyingGlassIcon size={20} aria-hidden /></IconButton>
+            <IconButton aria-label="Open menu" variant="ghost" onClick={() => setMobileOpen(true)}>
+              <ListIcon size={21} aria-hidden />
+            </IconButton>
+            <IconButton aria-label="Search" variant="ghost" onClick={() => setSearchOpen(true)}>
+              <MagnifyingGlassIcon size={20} aria-hidden />
+            </IconButton>
           </div>
           <button type="button" onClick={() => setSearchOpen(true)} className="hidden w-fit items-center gap-3 text-xs font-semibold tracking-[0.12em] text-muted-foreground uppercase transition-colors hover:text-foreground focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring lg:flex">
             <MagnifyingGlassIcon size={19} aria-hidden /> Search <kbd className="rounded border border-border bg-secondary px-1.5 py-0.5 font-sans text-[0.625rem]">/</kbd>
           </button>
-          <Link href="/" aria-label="IVORY, beranda" className="min-w-0 justify-self-center focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"><Logo compact /></Link>
+          <Link href="/" aria-label="IVORY, home" className="min-w-0 justify-self-center focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
+            <Logo compact />
+          </Link>
           <div className="flex items-center justify-end gap-0.5">
             <div className="hidden items-center sm:flex">
-              <HeaderUtilityLink href="/account" label="Account"><UserCircleIcon aria-hidden /></HeaderUtilityLink>
-              <HeaderUtilityLink href="/wishlist" label="Wishlist" count={wishlistCount}><HeartIcon aria-hidden /></HeaderUtilityLink>
+              <HeaderUtilityLink href="/account" label="Account">
+                <UserCircleIcon aria-hidden />
+              </HeaderUtilityLink>
+              <HeaderUtilityLink href="/wishlist" label="Wishlist" count={wishlistCount}>
+                <HeartIcon aria-hidden />
+              </HeaderUtilityLink>
             </div>
-            <HeaderUtilityButton label="Shopping cart" count={visibleCartCount} onClick={() => setCartOpen(true)}><ShoppingBagIcon aria-hidden /></HeaderUtilityButton>
+            <HeaderUtilityButton label="Shopping cart" count={visibleCartCount} onClick={() => setCartOpen(true)}>
+              <ShoppingBagIcon aria-hidden />
+            </HeaderUtilityButton>
           </div>
         </Container>
 
@@ -102,9 +114,13 @@ export function SiteHeader() {
                         onMouseEnter={() => setActiveMenu(item)}
                         onFocus={() => setActiveMenu(item)}
                         onClick={() => setActiveMenu(isOpen ? null : item)}
-                        onKeyDown={(event) => { if (event.key === "Escape") closeMenus(); }}
+                        onKeyDown={(event) => {
+                          if (event.key === "Escape") closeMenus();
+                        }}
                         className={`relative h-12 text-[0.7rem] font-semibold tracking-[0.12em] uppercase transition-colors after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-center after:scale-x-0 after:bg-foreground after:transition-transform hover:after:scale-x-100 focus-visible:outline-none focus-visible:after:scale-x-100 aria-expanded:after:scale-x-100 ${item.featured ? "text-destructive" : ""}`}
-                      >{item.label}</button>
+                      >
+                        {item.label}
+                      </button>
                     </li>
                   );
                 })}
@@ -130,7 +146,7 @@ function HeaderUtilityButton({ label, count, onClick, children }: { label: strin
   );
 }
 
-function HeaderUtilityLink({ href, label, count, className = "" , children }: { href: string; label: string; count?: number; className?: string; children: React.ReactNode }) {
+function HeaderUtilityLink({ href, label, count, className = "", children }: { href: string; label: string; count?: number; className?: string; children: React.ReactNode }) {
   return (
     <Link href={href} prefetch={false} aria-label={count ? `${label}, ${count} item` : label} className={`relative inline-flex size-10 items-center justify-center rounded-md transition-colors hover:bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring [&_svg]:size-5 ${className}`}>
       {children}

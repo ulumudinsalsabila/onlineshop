@@ -5,4 +5,7 @@ import { requireSeller } from "@/lib/seller/auth";
 import { privateMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Seller", ...privateMetadata };
-export default async function SellerLayout({ children }: { children: ReactNode }) { const { seller } = await requireSeller({ approved: false }); return <SellerShell seller={seller}>{children}</SellerShell>; }
+export default async function SellerLayout({ children }: { children: ReactNode }) {
+  const { seller } = await requireSeller({ approved: false });
+  return <SellerShell seller={seller}>{children}</SellerShell>;
+}

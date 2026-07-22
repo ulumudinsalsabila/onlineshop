@@ -9,7 +9,7 @@ const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://res.cloudinary.com",
+  `img-src 'self' data: blob: https://res.cloudinary.com${apiOrigin ? ` ${apiOrigin}` : ""}`,
   "font-src 'self' data:",
   `connect-src 'self'${apiOrigin ? ` ${apiOrigin}` : ""}`,
   "frame-src 'self'",

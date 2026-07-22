@@ -1,5 +1,100 @@
 import { notFound } from "next/navigation";
-import { SellerPageHeader } from "@/components/seller/seller-page-header"; import { SubmissionActions } from "@/components/seller/submission-actions"; import { SubmissionForm } from "@/components/seller/submission-form"; import { SubmissionMedia } from "@/components/seller/submission-media"; import { Badge } from "@/components/ui/badge";
-import { authenticatedBackendApi } from "@/lib/authenticated-backend-api"; import { formatIDR } from "@/lib/formatters"; import { requireSeller } from "@/lib/seller/auth"; import type { SellerOptions, SellerSubmission } from "@/types/seller-api";
-export default async function SubmissionDetail({ params }: { params: Promise<{ id: string }> }) { await requireSeller(); const id = (await params).id; const [submissionResult, optionsResult] = await Promise.all([authenticatedBackendApi<SellerSubmission | null>(`/seller/submissions/${encodeURIComponent(id)}`, { cache: "no-store" }), authenticatedBackendApi<SellerOptions>("/seller/options", { cache: "no-store" })]); const submission = submissionResult.data; if (!submission) notFound(); const { categories, brands } = optionsResult.data; const editable = ["DRAFT", "NEEDS_REVISION"].includes(submission.status); const initial = { title: submission.title, brandId: submission.brandId ?? "", proposedBrand: submission.proposedBrand ?? "", categoryId: submission.categoryId ?? categories[0]?.id ?? "", conditionLabel: submission.conditionLabel, completeness: submission.completeness, flawNotes: submission.flawNotes ?? "", description: submission.description, expectedPrice: Number(submission.expectedPrice) }; return <div><SellerPageHeader eyebrow={submission.submissionNumber} title={submission.title} description="Status dan riwayat hanya terlihat oleh Anda serta tim kurasi." action={<div className="flex items-center gap-3"><Badge>{submission.status.replaceAll("_", " ")}</Badge><SubmissionActions id={id} status={submission.status} /></div>} /><div className="space-y-6">{editable && <SubmissionForm submissionId={id} initial={initial} categories={categories} brands={brands} />}<SubmissionMedia submissionId={id} images={submission.images} editable={editable} /><section className="grid gap-5 md:grid-cols-3"><Card title="Your expectation" value={formatIDR(Number(submission.expectedPrice))} /><Card title="Maison estimate" value={submission.estimatedPrice ? formatIDR(Number(submission.estimatedPrice)) : "Pending"} /><Card title="Agreed price" value={submission.agreedPrice ? formatIDR(Number(submission.agreedPrice)) : "Pending"} /></section>{submission.revisionReason || submission.rejectionReason ? <section className="border border-destructive/30 bg-destructive/5 p-5"><h2 className="font-semibold">Review note</h2><p className="mt-2 text-sm text-muted-foreground">{submission.revisionReason ?? submission.rejectionReason}</p></section> : null}<section className="border border-[#ddd5c7] bg-[#faf8f3] p-6"><h2 className="font-serif text-2xl">Activity</h2><ol className="mt-5 border-l border-[#c9bea8] pl-6"><li className="relative pb-5"><span className="absolute top-1 -left-[1.85rem] size-3 rounded-full bg-[#9d895c]" /><p className="text-sm font-semibold">Submission created</p><time className="text-xs text-muted-foreground">{new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short" }).format(submission.createdAt)}</time></li>{submission.inspections.map((inspection) => <li key={inspection.id} className="relative pb-5"><span className="absolute top-1 -left-[1.85rem] size-3 rounded-full bg-[#9d895c]" /><p className="text-sm font-semibold">Inspection {inspection.result.toLowerCase()}</p><time className="text-xs text-muted-foreground">{new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short" }).format(inspection.inspectedAt)}</time></li>)}</ol></section></div></div>; }
-function Card({ title, value }: { title: string; value: string }) { return <div className="border border-[#ddd5c7] bg-[#faf8f3] p-5"><p className="text-xs tracking-wider text-muted-foreground uppercase">{title}</p><p className="mt-3 font-serif text-2xl">{value}</p></div>; }
+import { SellerPageHeader } from "@/components/seller/seller-page-header";
+import { SubmissionActions } from "@/components/seller/submission-actions";
+import { SubmissionForm } from "@/components/seller/submission-form";
+import { SubmissionMedia } from "@/components/seller/submission-media";
+import { Badge } from "@/components/ui/badge";
+import { authenticatedBackendApi } from "@/lib/authenticated-backend-api";
+import { formatIDR } from "@/lib/formatters";
+import { requireSeller } from "@/lib/seller/auth";
+import type { SellerOptions, SellerSubmission } from "@/types/seller-api";
+export default async function SubmissionDetail({ params }: { params: Promise<{ id: string }> }) {
+  await requireSeller();
+  const id = (await params).id;
+  const [submissionResult, optionsResult] = await Promise.all([
+    authenticatedBackendApi<SellerSubmission | null>(`/seller/submissions/${encodeURIComponent(id)}`, { cache: "no-store" }),
+    authenticatedBackendApi<SellerOptions>("/seller/options", {
+      cache: "no-store",
+    }),
+  ]);
+  const submission = submissionResult.data;
+  if (!submission) notFound();
+  const { categories, brands } = optionsResult.data;
+  const editable = ["DRAFT", "NEEDS_REVISION"].includes(submission.status);
+  const initial = {
+    title: submission.title,
+    brandId: submission.brandId ?? "",
+    proposedBrand: submission.proposedBrand ?? "",
+    categoryId: submission.categoryId ?? categories[0]?.id ?? "",
+    conditionLabel: submission.conditionLabel,
+    completeness: submission.completeness,
+    flawNotes: submission.flawNotes ?? "",
+    description: submission.description,
+    expectedPrice: Number(submission.expectedPrice),
+  };
+  return (
+    <div>
+      <SellerPageHeader
+        eyebrow={submission.submissionNumber}
+        title={submission.title}
+        description="The status and history are visible only to you and the curation team."
+        action={
+          <div className="flex items-center gap-3">
+            <Badge>{submission.status.replaceAll("_", " ")}</Badge>
+            <SubmissionActions id={id} status={submission.status} />
+          </div>
+        }
+      />
+      <div className="space-y-6">
+        {editable && <SubmissionForm submissionId={id} initial={initial} categories={categories} brands={brands} />}
+        <SubmissionMedia submissionId={id} images={submission.images} editable={editable} />
+        <section className="grid gap-5 md:grid-cols-3">
+          <Card title="Your expectation" value={formatIDR(Number(submission.expectedPrice))} />
+          <Card title="Maison estimate" value={submission.estimatedPrice ? formatIDR(Number(submission.estimatedPrice)) : "Pending"} />
+          <Card title="Agreed price" value={submission.agreedPrice ? formatIDR(Number(submission.agreedPrice)) : "Pending"} />
+        </section>
+        {submission.revisionReason || submission.rejectionReason ? (
+          <section className="border border-destructive/30 bg-destructive/5 p-5">
+            <h2 className="font-semibold">Review note</h2>
+            <p className="mt-2 text-sm text-muted-foreground">{submission.revisionReason ?? submission.rejectionReason}</p>
+          </section>
+        ) : null}
+        <section className="border border-[#ddd5c7] bg-[#faf8f3] p-6">
+          <h2 className="font-serif text-2xl">Activity</h2>
+          <ol className="mt-5 border-l border-[#c9bea8] pl-6">
+            <li className="relative pb-5">
+              <span className="absolute top-1 -left-[1.85rem] size-3 rounded-full bg-[#9d895c]" />
+              <p className="text-sm font-semibold">Submission created</p>
+              <time className="text-xs text-muted-foreground">
+                {new Intl.DateTimeFormat("id-ID", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                }).format(submission.createdAt)}
+              </time>
+            </li>
+            {submission.inspections.map((inspection) => (
+              <li key={inspection.id} className="relative pb-5">
+                <span className="absolute top-1 -left-[1.85rem] size-3 rounded-full bg-[#9d895c]" />
+                <p className="text-sm font-semibold">Inspection {inspection.result.toLowerCase()}</p>
+                <time className="text-xs text-muted-foreground">
+                  {new Intl.DateTimeFormat("id-ID", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  }).format(inspection.inspectedAt)}
+                </time>
+              </li>
+            ))}
+          </ol>
+        </section>
+      </div>
+    </div>
+  );
+}
+function Card({ title, value }: { title: string; value: string }) {
+  return (
+    <div className="border border-[#ddd5c7] bg-[#faf8f3] p-5">
+      <p className="text-xs tracking-wider text-muted-foreground uppercase">{title}</p>
+      <p className="mt-3 font-serif text-2xl">{value}</p>
+    </div>
+  );
+}

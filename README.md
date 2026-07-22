@@ -23,7 +23,7 @@ NEXT_PUBLIC_API_URL="http://localhost:4000/api"
 
 Login menyimpan JWT yang dikembalikan backend pada cookie frontend `ivory_access_token`. Service API otomatis menambahkan `Authorization: Bearer <token>` pada setiap request terautentikasi; Server Components membaca cookie yang sama dan meneruskannya sebagai Bearer header. Token dibersihkan saat logout atau ketika API mengembalikan HTTP 401.
 
-Jangan menaruh `DATABASE_URL`, JWT/session secret, Midtrans server key, Biteship key, Cloudinary secret, atau secret lain di repository maupun environment frontend.
+Jangan menaruh `DATABASE_URL`, JWT/session secret, Midtrans server key, Cloudinary secret, atau secret lain di repository maupun environment frontend.
 
 ## Perintah
 

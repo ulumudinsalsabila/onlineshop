@@ -6,6 +6,61 @@ import { authenticatedBackendApi } from "@/lib/authenticated-backend-api";
 import { formatIDR } from "@/lib/formatters";
 import { requireSeller, type SellerProfile } from "@/lib/seller/auth";
 
-type Overview = { seller: SellerProfile; submissions: number; listed: number; sold: number; balance: number };
-export default async function SellerOverview() { await requireSeller(); const { data } = await authenticatedBackendApi<Overview>("/seller/overview", { cache: "no-store" }); return <div><SellerPageHeader title={`Welcome, ${data.seller.displayName}`} description="Pantau perjalanan produk dari review hingga dana tersedia." action={<Button asChild><Link href="/seller/submissions/new">New submission</Link></Button>} /><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Metric label="Submissions" value={String(data.submissions)} icon={PackageIcon} /><Metric label="Currently listed" value={String(data.listed)} icon={ClockIcon} /><Metric label="Sold" value={String(data.sold)} icon={ArrowRightIcon} /><Metric label="Available balance" value={formatIDR(data.balance)} icon={WalletIcon} /></div><section className="mt-6 border border-[#ddd5c7] bg-[#faf8f3] p-6"><h2 className="font-serif text-3xl">How consignment moves</h2><div className="mt-6 grid gap-4 md:grid-cols-4">{[["01", "Submit", "Detail dan foto diperiksa."], ["02", "Agree", "Terima estimasi kurasi."], ["03", "Sell", "Kami listing dan memenuhi order."], ["04", "Payout", "Dana tersedia setelah masa retur."]].map(([n, title, body]) => <div key={n} className="border-t border-[#aaa086] pt-4"><span className="text-xs text-[#9d895c]">{n}</span><h3 className="mt-4 font-serif text-2xl">{title}</h3><p className="mt-2 text-xs leading-5 text-muted-foreground">{body}</p></div>)}</div></section></div>; }
-function Metric({ label, value, icon: Icon }: { label: string; value: string; icon: typeof PackageIcon }) { return <article className="border border-[#ddd5c7] bg-[#faf8f3] p-5"><Icon className="size-5 text-[#9d895c]" aria-hidden /><p className="mt-5 text-xs tracking-wider text-muted-foreground uppercase">{label}</p><p className="mt-2 font-serif text-3xl">{value}</p></article>; }
+type Overview = {
+  seller: SellerProfile;
+  submissions: number;
+  listed: number;
+  sold: number;
+  balance: number;
+};
+export default async function SellerOverview() {
+  await requireSeller();
+  const { data } = await authenticatedBackendApi<Overview>("/seller/overview", {
+    cache: "no-store",
+  });
+  return (
+    <div>
+      <SellerPageHeader
+        title={`Welcome, ${data.seller.displayName}`}
+        description="Track each product from review until the funds become available."
+        action={
+          <Button asChild>
+            <Link href="/seller/submissions/new">New submission</Link>
+          </Button>
+        }
+      />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Metric label="Submissions" value={String(data.submissions)} icon={PackageIcon} />
+        <Metric label="Currently listed" value={String(data.listed)} icon={ClockIcon} />
+        <Metric label="Sold" value={String(data.sold)} icon={ArrowRightIcon} />
+        <Metric label="Available balance" value={formatIDR(data.balance)} icon={WalletIcon} />
+      </div>
+      <section className="mt-6 border border-[#ddd5c7] bg-[#faf8f3] p-6">
+        <h2 className="font-serif text-3xl">How consignment moves</h2>
+        <div className="mt-6 grid gap-4 md:grid-cols-4">
+          {[
+            ["01", "Submit", "Product details and photos are reviewed."],
+            ["02", "Agree", "Accept the curated estimate."],
+            ["03", "Sell", "We list the product and fulfill the order."],
+            ["04", "Payout", "Funds become available after the return period."],
+          ].map(([n, title, body]) => (
+            <div key={n} className="border-t border-[#aaa086] pt-4">
+              <span className="text-xs text-[#9d895c]">{n}</span>
+              <h3 className="mt-4 font-serif text-2xl">{title}</h3>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">{body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+function Metric({ label, value, icon: Icon }: { label: string; value: string; icon: typeof PackageIcon }) {
+  return (
+    <article className="border border-[#ddd5c7] bg-[#faf8f3] p-5">
+      <Icon className="size-5 text-[#9d895c]" aria-hidden />
+      <p className="mt-5 text-xs tracking-wider text-muted-foreground uppercase">{label}</p>
+      <p className="mt-2 font-serif text-3xl">{value}</p>
+    </article>
+  );
+}

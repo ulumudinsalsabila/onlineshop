@@ -9,7 +9,7 @@ export async function catalogMetadata(input: { title: string; description: strin
   const query = parseCatalogQuery(await input.searchParams);
   const result = await getCatalogProducts(query, input.preset);
   const canonical = result.page > 1 ? `${input.pathname}?page=${result.page}` : input.pathname;
-  const pageTitle = result.page > 1 ? `${input.title} — Halaman ${result.page}` : input.title;
+  const pageTitle = result.page > 1 ? `${input.title} — Page ${result.page}` : input.title;
   const metadata = publicMetadata({ title: pageTitle, description: input.description, path: canonical });
   return {
     ...metadata,

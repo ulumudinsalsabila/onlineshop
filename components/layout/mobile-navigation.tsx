@@ -40,7 +40,7 @@ export function MobileNavigation({ open, onOpenChange, onSearch, cartCount, wish
               <AccordionItem key={item.href} value={item.href} className="border-border">
                 <AccordionTrigger className={item.featured ? "text-destructive" : undefined}>{item.label}</AccordionTrigger>
                 <AccordionContent className="pb-4">
-                  <Link href={item.href} prefetch={false} onClick={navigate} className="mb-4 inline-block text-xs font-semibold tracking-wider uppercase underline underline-offset-4">Lihat semua {item.label}</Link>
+                  <Link href={item.href} prefetch={false} onClick={navigate} className="mb-4 inline-block text-xs font-semibold tracking-wider uppercase underline underline-offset-4">View all {item.label}</Link>
                   <div className="space-y-5 pl-3">
                     {item.groups?.map((group) => (
                       <div key={group.title}>

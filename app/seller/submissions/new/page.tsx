@@ -1,2 +1,15 @@
-import { SellerPageHeader } from "@/components/seller/seller-page-header"; import { SubmissionForm } from "@/components/seller/submission-form"; import { authenticatedBackendApi } from "@/lib/authenticated-backend-api"; import { requireSeller } from "@/lib/seller/auth"; import type { SellerOptions } from "@/types/seller-api";
-export default async function NewSubmissionPage() { await requireSeller(); const { data } = await authenticatedBackendApi<SellerOptions>("/seller/options", { cache: "no-store" }); return <div><SellerPageHeader title="New submission" description="Mulai sebagai draft, lengkapi detail produk, lalu unggah minimal tiga foto." /><SubmissionForm categories={data.categories} brands={data.brands} /></div>; }
+import { SellerPageHeader } from "@/components/seller/seller-page-header";
+import { SubmissionForm } from "@/components/seller/submission-form";
+import { authenticatedBackendApi } from "@/lib/authenticated-backend-api";
+import { requireSeller } from "@/lib/seller/auth";
+import type { SellerOptions } from "@/types/seller-api";
+export default async function NewSubmissionPage() {
+  await requireSeller();
+  const { data } = await authenticatedBackendApi<SellerOptions>("/seller/options", { cache: "no-store" });
+  return (
+    <div>
+      <SellerPageHeader title="New submission" description="Start with a draft, complete the product details, then upload at least three photos." />
+      <SubmissionForm categories={data.categories} brands={data.brands} />
+    </div>
+  );
+}

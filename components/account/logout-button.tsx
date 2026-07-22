@@ -1,27 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { SignOutIcon, SpinnerGapIcon } from "@phosphor-icons/react";
 
 import { Button } from "@/components/ui/button";
 import { apiFetch, clearApiAccessToken } from "@/lib/api-client";
+import { backendApiUrl } from "@/lib/api-url";
 
 export function LogoutButton() {
-  const router = useRouter();
   const [pending, setPending] = useState(false);
 
-  async function logout() {
+  function logout() {
+    if (pending) return;
     setPending(true);
-    try { await apiFetch("/auth/logout", { method: "POST" }); }
-    finally {
+    try {
+      void apiFetch(backendApiUrl("/auth/logout"), { method: "POST", keepalive: true }).catch(() => undefined);
+    } finally {
       clearApiAccessToken();
-      router.replace("/login");
-      router.refresh();
-      setPending(false);
+      window.location.replace("/login");
     }
   }
 
-  return <Button type="button" variant="ghost" className="mt-4 w-full justify-start" disabled={pending} onClick={() => void logout()}>{pending ? <SpinnerGapIcon className="animate-spin" aria-hidden /> : <SignOutIcon aria-hidden />}Logout</Button>;
+  return <Button type="button" variant="ghost" className="mt-4 w-full justify-start" disabled={pending} onClick={logout}>{pending ? <SpinnerGapIcon className="animate-spin" aria-hidden /> : <SignOutIcon aria-hidden />}Logout</Button>;
 }
-
