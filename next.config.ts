@@ -25,11 +25,6 @@ const nextConfig: NextConfig = {
     root: process.cwd(),
   },
   images: { remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" }] },
-  async rewrites() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-    if (!apiUrl) throw new Error("NEXT_PUBLIC_API_URL wajib dikonfigurasi.");
-    return [{ source: "/api/:path*", destination: `${apiUrl}/:path*` }];
-  },
   async headers() {
     const headers = [
       { key: "Content-Security-Policy", value: contentSecurityPolicy },

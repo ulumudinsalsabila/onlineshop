@@ -1,5 +1,7 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
+
 import { useEffect, useMemo, useState } from "react";
 import * as m from "motion/react-m";
 import { ArrowLeftIcon, ArrowRightIcon, CheckCircleIcon, MapPinIcon, PackageIcon, SpinnerGapIcon } from "@phosphor-icons/react";
@@ -36,7 +38,7 @@ export function CheckoutFlow() {
   const selectedAddress = context?.addresses.find((address) => address.id === addressId);
 
   async function loadContext() {
-    const response = await fetch("/api/checkout", { cache: "no-store" });
+    const response = await apiFetch("/api/checkout", { cache: "no-store" });
     const result = await response.json() as ApiResult<Context>;
     if (!result.success) throw new Error(result.error.message);
     setContext(result.data);
@@ -44,7 +46,7 @@ export function CheckoutFlow() {
   }
   useEffect(() => {
     let active = true;
-    void fetch("/api/checkout", { cache: "no-store" }).then(async (response) => response.json() as Promise<ApiResult<Context>>).then((result) => {
+    void apiFetch("/api/checkout", { cache: "no-store" }).then(async (response) => response.json() as Promise<ApiResult<Context>>).then((result) => {
       if (!active) return;
       if (!result.success) throw new Error(result.error.message);
       setContext(result.data);
@@ -57,7 +59,7 @@ export function CheckoutFlow() {
     if (!selectedAddress) return;
     setBusy(true);
     try {
-      const response = await fetch("/api/shipping/rates", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ postalCode: selectedAddress.postalCode, courierCodes: ["jne", "sicepat", "anteraja", "jnt"] }) });
+      const response = await apiFetch("/api/shipping/rates", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ postalCode: selectedAddress.postalCode, courierCodes: ["jne", "sicepat", "anteraja", "jnt"] }) });
       const result = await response.json() as ApiResult<Quote[]>;
       if (!result.success) throw new Error(result.error.message);
       setQuotes(result.data); setQuote(result.data[0] ?? null);
@@ -67,7 +69,7 @@ export function CheckoutFlow() {
   async function saveAddress() {
     setBusy(true);
     try {
-      const response = await fetch("/api/addresses", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(addressForm) });
+      const response = await apiFetch("/api/addresses", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(addressForm) });
       const result = await response.json() as ApiResult<Address>;
       if (!result.success) throw new Error(result.error.message);
       await loadContext(); setAddressId(result.data.id); setAddingAddress(false); toast.success("Address saved.");
@@ -79,7 +81,7 @@ export function CheckoutFlow() {
     if (!payload) return;
     setBusy(true);
     try {
-      const response = await fetch("/api/checkout/preview", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const response = await apiFetch("/api/checkout/preview", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const result = await response.json() as ApiResult<Totals>;
       if (!result.success) throw new Error(result.error.message);
       setTotals(result.data); toast.success(voucherCode ? "Voucher diterapkan." : "Total diperbarui.");
@@ -89,7 +91,7 @@ export function CheckoutFlow() {
     if (!payload) return;
     setBusy(true);
     try {
-      const response = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const response = await apiFetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const result = await response.json() as ApiResult<{ orderId: string; orderNumber: string; redirectUrl: string }>;
       if (!result.success) throw new Error(result.error.message);
       sessionStorage.setItem("last-order-id", result.data.orderId);

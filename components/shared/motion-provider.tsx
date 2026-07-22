@@ -5,7 +5,7 @@ import { domAnimation, LazyMotion, MotionConfig } from "motion/react";
 export function MotionProvider({ children }: { children: React.ReactNode }) {
   return (
     <LazyMotion features={domAnimation} strict>
-      <MotionConfig reducedMotion="user" transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
+      <MotionConfig reducedMotion={process.env.NODE_ENV === "production" ? "user" : "never"} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
         {children}
       </MotionConfig>
     </LazyMotion>

@@ -39,7 +39,7 @@ Langkah yang sama berlaku pada platform Node lain: jalankan `npm ci`, `npm run b
 2. Smoke test endpoint health dan endpoint autentikasi backend.
 3. Deploy frontend.
 4. Uji katalog, login/logout, cart, checkout, account, seller, dan admin sesuai role.
-5. Periksa bahwa request `/api/*` diteruskan ke backend yang benar.
+5. Periksa bahwa request browser langsung menuju origin `NEXT_PUBLIC_API_URL`.
 
 ## Checklist keamanan
 
@@ -67,4 +67,3 @@ Pastikan `NEXT_PUBLIC_API_URL` menyertakan prefix `/api` dan tidak memiliki trai
 ### Gambar eksternal ditolak
 
 Tambahkan hostname delivery image yang memang digunakan ke `images.remotePatterns` dan CSP `img-src` di `next.config.ts`.
-

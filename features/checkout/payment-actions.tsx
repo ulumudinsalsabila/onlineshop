@@ -1,5 +1,7 @@
 "use client";
 
+import { apiFetch } from "@/lib/api-client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowClockwiseIcon, CheckIcon, SpinnerGapIcon, XIcon } from "@phosphor-icons/react";
@@ -13,7 +15,7 @@ export function PaymentActions({ orderId, mock }: { orderId: string; mock: boole
   async function call(url: string, body?: object) {
     setBusy(true);
     try {
-      const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, ...(body ? { body: JSON.stringify(body) } : {}) });
+      const response = await apiFetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, ...(body ? { body: JSON.stringify(body) } : {}) });
       const result = await response.json() as { success?: boolean; data?: { status?: string }; error?: { message?: string } };
       if (!result.success) throw new Error(result.error?.message ?? "The status could not be updated.");
       toast.success("Payment status updated.");

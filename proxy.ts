@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export function proxy(request: import("next/server").NextRequest) {
   const protectedPath = request.nextUrl.pathname.startsWith("/account") || request.nextUrl.pathname.startsWith("/checkout") || request.nextUrl.pathname.startsWith("/admin") || request.nextUrl.pathname.startsWith("/seller") || request.nextUrl.pathname === "/sell";
-  const authenticated = request.cookies.has("ivory_session");
+  const authenticated = request.cookies.has("ivory_access_token") || request.cookies.has("ivory_session");
   if (protectedPath && !authenticated) {
     const login = new URL("/login", request.nextUrl.origin);
     login.searchParams.set("callbackUrl", `${request.nextUrl.pathname}${request.nextUrl.search}`);

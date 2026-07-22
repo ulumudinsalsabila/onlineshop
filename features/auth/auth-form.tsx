@@ -1,5 +1,7 @@
 "use client";
 
+import { apiFetch, setApiAccessToken } from "@/lib/api-client";
+
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -24,14 +26,16 @@ export function AuthForm({ mode, callbackUrl = "/account", email = "", token = "
     const values = Object.fromEntries(new FormData(event.currentTarget));
     try {
       if (mode === "login") {
-        const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ email: values.email, password: values.password }) });
-        const result = await response.json() as { success: boolean; error?: { message?: string } };
+        const response = await apiFetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ email: values.email, password: values.password }) });
+        const result = await response.json() as { success: boolean; data?: { accessToken?: string }; error?: { message?: string } };
         if (!response.ok || !result.success) throw new Error(result.error?.message ?? "Incorrect email or password.");
+        if (!result.data?.accessToken) throw new Error("Backend tidak mengembalikan access token.");
+        setApiAccessToken(result.data.accessToken);
         router.push(safeRedirectPath(callbackUrl)); router.refresh(); return;
       }
       const endpoint = mode === "register" ? "/api/auth/register" : mode === "forgot" ? "/api/auth/forgot-password" : "/api/auth/reset-password";
       const body = mode === "reset" ? { ...values, email, token } : values;
-      const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const response = await apiFetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const result = await response.json() as { success: boolean; data?: { message?: string }; error?: { message?: string; details?: { fieldErrors?: Record<string, string[]> } } };
       if (!response.ok || !result.success) {
         const firstFieldError = result.error?.details?.fieldErrors ? Object.values(result.error.details.fieldErrors).flat()[0] : undefined;
