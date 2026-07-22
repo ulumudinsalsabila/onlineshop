@@ -1,5 +1,6 @@
 "use server";
 
-import { signOut } from "@/auth";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export async function logout() { await signOut({ redirectTo: "/" }); }
+export async function logout() { (await cookies()).delete("ivory_session"); redirect("/"); }

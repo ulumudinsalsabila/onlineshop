@@ -10,7 +10,7 @@ import {
   UsersIcon, WarehouseIcon, ImageIcon, ShieldCheckIcon, XIcon,
 } from "@phosphor-icons/react";
 
-import type { UserRole } from "@/generated/prisma/client";
+import type { UserRole } from "@/auth";
 import type { AdminPermission } from "@/lib/admin/permissions";
 import { hasAdminPermission } from "@/lib/admin/permissions";
 import { cn } from "@/lib/utils";

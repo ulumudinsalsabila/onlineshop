@@ -1,13 +1,13 @@
 import { redirect } from "next/navigation";
 
-import type { UserRole } from "@/generated/prisma/client";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import type { UserRole } from "@/auth";
+import { authenticatedBackendApi } from "@/lib/authenticated-backend-api";
 
 export async function getVerifiedUser() {
   const session = await auth();
   if (!session?.user?.id) return null;
-  return prisma.user.findFirst({ where: { id: session.user.id, isActive: true, deletedAt: null }, select: { id: true, name: true, email: true, phone: true, role: true, emailVerified: true, createdAt: true } });
+  return (await authenticatedBackendApi<{ id: string; name: string | null; email: string; phone: string | null; role: UserRole; emailVerified: Date | null; createdAt: Date }>("/account/profile", { cache: "no-store" })).data;
 }
 
 export async function requireUser() {

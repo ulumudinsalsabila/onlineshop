@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRightIcon, CheckCircleIcon, EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
-import { signIn } from "next-auth/react";
 import { safeRedirectPath } from "@/lib/safe-redirect";
 
 import { Button } from "@/components/ui/button";
@@ -25,8 +24,9 @@ export function AuthForm({ mode, callbackUrl = "/account", email = "", token = "
     const values = Object.fromEntries(new FormData(event.currentTarget));
     try {
       if (mode === "login") {
-        const result = await signIn("credentials", { email: values.email, password: values.password, redirect: false });
-        if (result?.error) throw new Error("Incorrect email or password, unverified account, or too many attempts.");
+        const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ email: values.email, password: values.password }) });
+        const result = await response.json() as { success: boolean; error?: { message?: string } };
+        if (!response.ok || !result.success) throw new Error(result.error?.message ?? "Incorrect email or password.");
         router.push(safeRedirectPath(callbackUrl)); router.refresh(); return;
       }
       const endpoint = mode === "register" ? "/api/auth/register" : mode === "forgot" ? "/api/auth/forgot-password" : "/api/auth/reset-password";

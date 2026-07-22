@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 
 import { Logo } from "@/components/shared/logo";
-import { isMockDataMode } from "@/lib/env";
 
 export function AuthShell({ eyebrow, title, description, children }: { eyebrow: string; title: string; description: string; children: ReactNode }) {
   return (
@@ -13,7 +12,6 @@ export function AuthShell({ eyebrow, title, description, children }: { eyebrow: 
           <p className="mt-14 text-[0.625rem] font-semibold tracking-[0.18em] text-muted-foreground uppercase">{eyebrow}</p>
           <h1 className="mt-3 font-serif text-(length:--text-heading-1) leading-[0.95]">{title}</h1>
           <p className="mt-5 text-sm leading-7 text-muted-foreground">{description}</p>
-          {isMockDataMode ? <p role="status" className="mt-6 border border-accent/40 bg-accent/10 px-4 py-3 text-xs leading-5 text-muted-foreground">The storefront is running in database-free demo mode. Authentication and transactional features become available once PostgreSQL is configured.</p> : null}
           {children}
         </div>
       </section>

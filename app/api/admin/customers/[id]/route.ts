@@ -1,7 +1,0 @@
-import { authorizeAdminApi } from "@/lib/admin/auth";
-import { writeAuditLog } from "@/lib/admin/audit";
-import { customerStatusSchema } from "@/lib/admin/schemas";
-import { apiError, apiSuccess, handleApiError } from "@/lib/api-response";
-import { prisma } from "@/lib/prisma";
-
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) { try { const auth = await authorizeAdminApi("customers:write"); if (!auth.user) return auth.response; const id = (await params).id; if (id === auth.user.id) return apiError("SELF_UPDATE_FORBIDDEN", "Status atau role akun sendiri tidak dapat diubah di sini.", 409); const data = customerStatusSchema.parse(await request.json()); const updated = await prisma.$transaction(async (tx) => { const current = await tx.user.findUnique({ where: { id }, select: { role: true, isActive: true } }); if (!current) throw new Error("NOT_FOUND"); const user = await tx.user.update({ where: { id }, data: { isActive: data.isActive, ...(data.role ? { role: data.role } : {}) }, select: { id: true, role: true, isActive: true } }); await writeAuditLog(tx, { userId: auth.user.id, action: "CUSTOMER_ACCESS_UPDATED", entityType: "User", entityId: id, metadata: { before: current, after: user }, request }); return user; }); return apiSuccess(updated); } catch (error) { if (error instanceof Error && error.message === "NOT_FOUND") return apiError("NOT_FOUND", "Customer tidak ditemukan.", 404); return handleApiError(error); } }

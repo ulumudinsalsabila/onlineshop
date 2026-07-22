@@ -1,0 +1,8 @@
+export type Money = number | string;
+export type SellerSubmissionSummary = { id: string; submissionNumber: string; title: string; status: string; proposedBrand: string | null; expectedPrice: Money; updatedAt: Date; brand: { name: string } | null; images: Array<{ id: string; url: string }> };
+export type SellerProduct = { id: string; name: string; slug: string; price: Money };
+export type SellerSubmission = SellerSubmissionSummary & { brandId: string | null; categoryId: string | null; conditionLabel: "PRISTINE" | "EXCELLENT" | "VERY_GOOD" | "GOOD"; completeness: string; flawNotes: string | null; description: string; estimatedPrice: Money | null; agreedPrice: Money | null; revisionReason: string | null; rejectionReason: string | null; createdAt: Date; product: SellerProduct | null; category: { name: string } | null; images: Array<{ id: string; url: string; alt: string; width: number; height: number }>; inspections: Array<{ id: string; result: string; inspectedAt: Date }> };
+export type SellerOptions = { categories: Array<{ id: string; name: string }>; brands: Array<{ id: string; name: string }> };
+export type SellerPayout = { id: string; payoutNumber: string; requestedAt: Date; amount: Money; status: string; providerRef: string | null; _count: { items: number } };
+export type SellerSale = { id: string; title: string; submissionNumber: string; status: string; commission: { grossAmount: Money | null; commissionAmount: Money | null; sellerNetAmount: Money | null } | null };
+export type SellerBalance = { available: number; pending: number; eligible: Array<{ id: string; sellerNetAmount: Money | null; submission: { title: string; submissionNumber: string } }> };

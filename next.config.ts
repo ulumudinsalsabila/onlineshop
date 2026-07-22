@@ -7,12 +7,12 @@ const apiOrigin = (() => {
 })();
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"} https://app.midtrans.com https://app.sandbox.midtrans.com`,
+  `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://res.cloudinary.com",
   "font-src 'self' data:",
-  `connect-src 'self'${apiOrigin ? ` ${apiOrigin}` : ""} https://api.midtrans.com https://api.sandbox.midtrans.com https://api.biteship.com`,
-  "frame-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com",
+  `connect-src 'self'${apiOrigin ? ` ${apiOrigin}` : ""}`,
+  "frame-src 'self'",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -25,6 +25,11 @@ const nextConfig: NextConfig = {
     root: process.cwd(),
   },
   images: { remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" }] },
+  async rewrites() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+    if (!apiUrl) throw new Error("NEXT_PUBLIC_API_URL wajib dikonfigurasi.");
+    return [{ source: "/api/:path*", destination: `${apiUrl}/:path*` }];
+  },
   async headers() {
     const headers = [
       { key: "Content-Security-Policy", value: contentSecurityPolicy },

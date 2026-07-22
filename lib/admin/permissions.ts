@@ -1,4 +1,4 @@
-import type { UserRole } from "@/generated/prisma/client";
+import type { UserRole } from "@/auth";
 
 export const adminPermissions = [
   "dashboard:read", "products:read", "products:write", "categories:read", "categories:write",

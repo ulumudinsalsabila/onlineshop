@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-type Address = { id: string; label: string; recipient: string; phone: string; line1: string; line2: string | null; district: string; city: string; province: string; postalCode: string; country: string; isDefault: boolean };
+export type Address = { id: string; label: string; recipient: string; phone: string; line1: string; line2: string | null; district: string; city: string; province: string; postalCode: string; country: string; isDefault: boolean };
 
 export function AddressManager({ initialAddresses }: { initialAddresses: Address[] }) {
   const [addresses, setAddresses] = useState(initialAddresses); const [open, setOpen] = useState(false); const [message, setMessage] = useState("");

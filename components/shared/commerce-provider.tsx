@@ -144,8 +144,8 @@ async function hasAuthenticatedSession(): Promise<boolean> {
   try {
     const response = await fetch("/api/auth/session", { cache: "no-store" });
     if (!response.ok) return false;
-    const session = await response.json() as { user?: { id?: string } } | null;
-    return Boolean(session?.user?.id);
+    const session = await response.json() as { success?: boolean; data?: { user?: { id?: string } } };
+    return Boolean(session.success && session.data?.user?.id);
   } catch {
     return false;
   }

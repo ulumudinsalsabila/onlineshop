@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { searchData } from "@/constants/storefront";
-import { backendApiUrl } from "@/lib/backend-api";
+import { backendApiUrl } from "@/lib/api-url";
 import type { CatalogProduct } from "@/types/catalog";
 
 export function SearchOverlay({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
