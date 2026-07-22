@@ -37,6 +37,7 @@ export function CommerceProvider({ children }: { children: React.ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [wishlistItemIds, setWishlistItemIds] = useState<Record<string, string>>({});
+  const [databaseSyncEnabled, setDatabaseSyncEnabled] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -46,7 +47,11 @@ export function CommerceProvider({ children }: { children: React.ReactNode }) {
       setWishlistIds(state.wishlistIds);
       setRecentlyViewedIds(state.recentlyViewedIds);
       setHydrated(true);
-      void syncCommerceFromDatabase(setCart, setWishlistIds, setWishlistItemIds);
+      void hasAuthenticatedSession().then((authenticated) => {
+        if (!active || !authenticated) return;
+        setDatabaseSyncEnabled(true);
+        void syncCommerceFromDatabase(setCart, setWishlistIds, setWishlistItemIds);
+      });
     });
     return () => { active = false; };
   }, []);
@@ -75,7 +80,7 @@ export function CommerceProvider({ children }: { children: React.ReactNode }) {
         ? current.map((item) => item.id === id ? { ...item, quantity: clampQuantity(item.quantity + quantity, product.stock) } : item)
         : [...current, { id, productId, variantId: variant?.id, color, size, quantity, productSnapshot: product }];
     });
-    if (variant?.id) void fetch("/api/cart", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ variantId: variant.id, quantity }) }).then(applyRemoteCartResponse(setCart)).catch(() => undefined);
+    if (databaseSyncEnabled && variant?.id) void fetch("/api/cart", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ variantId: variant.id, quantity }) }).then(applyRemoteCartResponse(setCart)).catch(() => undefined);
     if (options.openCart !== false) setCartOpen(true);
     return true;
   }
@@ -88,20 +93,20 @@ export function CommerceProvider({ children }: { children: React.ReactNode }) {
       const product = item.productSnapshot ?? catalogProducts.find((entry) => entry.id === item.productId);
       return product && product.stock > 0 ? [{ ...item, quantity: clampQuantity(quantity, product.stock) }] : [item];
     }));
-    if (remoteItem && quantity > 0) void fetch(`/api/cart/items/${itemId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ quantity }) }).then(applyRemoteCartResponse(setCart)).catch(() => undefined);
+    if (databaseSyncEnabled && remoteItem && quantity > 0) void fetch(`/api/cart/items/${itemId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ quantity }) }).then(applyRemoteCartResponse(setCart)).catch(() => undefined);
   }
 
   function removeFromCart(itemId: string) {
     const remote = cart.some((item) => item.id === itemId && item.variantId);
     setCart((current) => current.filter((item) => item.id !== itemId));
-    if (remote) void fetch(`/api/cart/items/${itemId}`, { method: "DELETE" }).catch(() => undefined);
+    if (databaseSyncEnabled && remote) void fetch(`/api/cart/items/${itemId}`, { method: "DELETE" }).catch(() => undefined);
   }
 
   function toggleWishlist(productId: string): boolean {
     const willAdd = !wishlistIds.includes(productId);
     setWishlistIds((current) => willAdd ? [productId, ...current.filter((id) => id !== productId)] : current.filter((id) => id !== productId));
-    if (willAdd) void fetch("/api/wishlist", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ productId }) }).then(async (response) => { const result = await response.json() as { success?: boolean; data?: { id?: string } }; if (result.success && result.data?.id) setWishlistItemIds((current) => ({ ...current, [productId]: result.data!.id! })); }).catch(() => undefined);
-    else if (wishlistItemIds[productId]) void fetch(`/api/wishlist/items/${wishlistItemIds[productId]}`, { method: "DELETE" }).catch(() => undefined);
+    if (databaseSyncEnabled && willAdd) void fetch("/api/wishlist", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ productId }) }).then(async (response) => { const result = await response.json() as { success?: boolean; data?: { id?: string } }; if (result.success && result.data?.id) setWishlistItemIds((current) => ({ ...current, [productId]: result.data!.id! })); }).catch(() => undefined);
+    else if (databaseSyncEnabled && wishlistItemIds[productId]) void fetch(`/api/wishlist/items/${wishlistItemIds[productId]}`, { method: "DELETE" }).catch(() => undefined);
     return willAdd;
   }
 
@@ -133,6 +138,17 @@ function remoteCartRecords(cart: RemoteCart): CartItemRecord[] {
 
 function applyRemoteCartResponse(setCart: React.Dispatch<React.SetStateAction<CartItemRecord[]>>) {
   return async (response: Response) => { const result = await response.json() as { success?: boolean; data?: RemoteCart }; if (result.success && result.data) setCart(remoteCartRecords(result.data)); };
+}
+
+async function hasAuthenticatedSession(): Promise<boolean> {
+  try {
+    const response = await fetch("/api/auth/session", { cache: "no-store" });
+    if (!response.ok) return false;
+    const session = await response.json() as { user?: { id?: string } } | null;
+    return Boolean(session?.user?.id);
+  } catch {
+    return false;
+  }
 }
 
 async function syncCommerceFromDatabase(setCart: React.Dispatch<React.SetStateAction<CartItemRecord[]>>, setWishlistIds: React.Dispatch<React.SetStateAction<string[]>>, setWishlistItemIds: React.Dispatch<React.SetStateAction<Record<string, string>>>) {
