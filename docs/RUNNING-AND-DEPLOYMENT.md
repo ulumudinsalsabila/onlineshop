@@ -1,5 +1,7 @@
 # Menjalankan dan Deploy IVORY
 
+> Dokumen ini menjelaskan aplikasi legacy/full-stack. Untuk deployment frontend dan backend terpisah di Vercel, gunakan [`DEPLOY-VERCEL.md`](DEPLOY-VERCEL.md).
+
 Panduan ini menggunakan npm karena project memiliki `package-lock.json`. Jalankan semua perintah dari root project.
 
 ## Menjalankan secara lokal

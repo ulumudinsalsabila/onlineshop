@@ -1,13 +1,17 @@
 import type { NextConfig } from "next";
 
 const isProduction = process.env.NODE_ENV === "production";
+const apiOrigin = (() => {
+  try { return process.env.NEXT_PUBLIC_API_URL ? new URL(process.env.NEXT_PUBLIC_API_URL).origin : ""; }
+  catch { return ""; }
+})();
 const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"} https://app.midtrans.com https://app.sandbox.midtrans.com`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://res.cloudinary.com",
   "font-src 'self' data:",
-  "connect-src 'self' https://api.midtrans.com https://api.sandbox.midtrans.com https://api.biteship.com",
+  `connect-src 'self'${apiOrigin ? ` ${apiOrigin}` : ""} https://api.midtrans.com https://api.sandbox.midtrans.com https://api.biteship.com`,
   "frame-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com",
   "object-src 'none'",
   "base-uri 'self'",

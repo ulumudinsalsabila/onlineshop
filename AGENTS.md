@@ -1,5 +1,5 @@
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
+# Frontend instructions
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
+- This repository contains the Next.js frontend. The NestJS backend is maintained separately in `be-onlineshop`.
+- This Next.js version contains breaking changes. Before changing APIs, conventions, or file structure, read the relevant version-matched guide in `node_modules/next/dist/docs/` and heed deprecation notices.
+- Run frontend checks from this repository root.

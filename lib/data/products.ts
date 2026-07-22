@@ -4,6 +4,8 @@ import { unstable_cache } from "next/cache";
 
 import type { Prisma } from "@/generated/prisma/client";
 import { CATALOG_PAGE_SIZE } from "@/constants/catalog";
+import { backendApi, hasBackendApi } from "@/lib/backend-api";
+import { queryToSearchParams } from "@/lib/catalog-query";
 import { prisma } from "@/lib/prisma";
 import { isMockDataMode } from "@/lib/env";
 import type { CatalogPreset, CatalogProduct, CatalogQuery, CatalogResponse } from "@/types/catalog";
@@ -43,6 +45,20 @@ function createWhere(query: CatalogQuery, preset: CatalogPreset): Prisma.Product
 
 export async function listProducts(query: CatalogQuery, preset: CatalogPreset = {}): Promise<CatalogResponse> {
   if (isMockDataMode) return listMockProducts(query, preset);
+  if (hasBackendApi) {
+    const params = queryToSearchParams(query);
+    if (!query.categories.length && preset.categories?.length) params.set("category", preset.categories.join(","));
+    if (!query.brands.length && preset.brands?.length) params.set("brand", preset.brands.join(","));
+    if (!query.conditions.length && preset.conditions?.length) params.set("condition", preset.conditions.join(","));
+    if (preset.onlyNew) params.set("onlyNew", "1");
+    if (preset.onSale) params.set("onSale", "1");
+    const result = await backendApi<CatalogProduct[]>(`/products?${params}`);
+    const total = Number(result.meta?.total ?? result.data.length);
+    const page = Number(result.meta?.page ?? query.page);
+    const pageSize = Number(result.meta?.pageSize ?? CATALOG_PAGE_SIZE);
+    const totalPages = Number(result.meta?.totalPages ?? Math.max(1, Math.ceil(total / pageSize)));
+    return { items: result.data, recommendations: result.data.filter((product) => product.stock > 0).slice(0, 4), total, page, pageSize, totalPages };
+  }
   const where = createWhere(query, preset);
   const databaseOrder = query.sort === "price-asc" ? { price: "asc" as const } : query.sort === "price-desc" ? { price: "desc" as const } : query.sort === "newest" ? { createdAt: "desc" as const } : null;
   if (databaseOrder && query.minDiscount === 0) {
@@ -76,15 +92,35 @@ async function recommendationProducts() {
 
 export const findProductBySlug = cache(async (slug: string) => {
   if (isMockDataMode) return findMockProductBySlug(slug);
+  if (hasBackendApi) {
+    try { return (await backendApi<ReturnType<typeof toProductDetail>>(`/products/${encodeURIComponent(slug)}`)).data; }
+    catch { return null; }
+  }
   const product = await prisma.product.findFirst({ where: { slug, status: "ACTIVE", deletedAt: null }, include: productWithRelations });
   return product ? toProductDetail(product) : null;
 });
 
-export const findCategoryBySlug = cache((slug: string) => isMockDataMode ? Promise.resolve(findMockCategoryBySlug(slug)) : prisma.category.findFirst({ where: { slug, isActive: true, deletedAt: null }, select: { name: true, slug: true, description: true } }));
-export const findBrandBySlug = cache((slug: string) => isMockDataMode ? Promise.resolve(findMockBrandBySlug(slug)) : prisma.brand.findFirst({ where: { slug, isActive: true, deletedAt: null }, select: { name: true, slug: true, description: true } }));
+export const findCategoryBySlug = cache(async (slug: string) => {
+  if (isMockDataMode) return findMockCategoryBySlug(slug);
+  if (hasBackendApi) {
+    try { return (await backendApi<{ name: string; slug: string; description: string | null }>(`/categories/${encodeURIComponent(slug)}`)).data; }
+    catch { return null; }
+  }
+  return prisma.category.findFirst({ where: { slug, isActive: true, deletedAt: null }, select: { name: true, slug: true, description: true } });
+});
+
+export const findBrandBySlug = cache(async (slug: string) => {
+  if (isMockDataMode) return findMockBrandBySlug(slug);
+  if (hasBackendApi) {
+    try { return (await backendApi<{ name: string; slug: string; description: string | null }>(`/brands/${encodeURIComponent(slug)}`)).data; }
+    catch { return null; }
+  }
+  return prisma.brand.findFirst({ where: { slug, isActive: true, deletedAt: null }, select: { name: true, slug: true, description: true } });
+});
 
 export async function featuredProducts(limit = 8) {
   if (isMockDataMode) return mockFeaturedProducts(limit);
+  if (hasBackendApi) return (await backendApi<CatalogProduct[]>(`/storefront/featured?limit=${Math.min(limit, 24)}`)).data;
   const products = await prisma.product.findMany({ where: { status: "ACTIVE", deletedAt: null, isFeatured: true }, include: productWithRelations, orderBy: { publishedAt: "desc" }, take: Math.min(limit, 24) });
   return products.map(toCatalogProduct);
 }
@@ -105,11 +141,14 @@ const loadProductsForHome = async () => {
 const cachedProductsForHome = unstable_cache(loadProductsForHome, ["storefront-home"], { revalidate: 300, tags: ["homepage", "products"] });
 
 export async function productsForHome() {
-  return isMockDataMode ? mockProductsForHome() : cachedProductsForHome();
+  if (isMockDataMode) return mockProductsForHome();
+  if (hasBackendApi) return (await backendApi<Awaited<ReturnType<typeof mockProductsForHome>>>("/storefront/home", { next: { revalidate: 300 } })).data;
+  return cachedProductsForHome();
 }
 
 export async function relatedProducts(categorySlug: string, excludeId: string, limit = 4) {
   if (isMockDataMode) return mockRelatedProducts(categorySlug, excludeId, limit);
+  if (hasBackendApi) return (await backendApi<CatalogProduct[]>(`/storefront/related?category=${encodeURIComponent(categorySlug)}&excludeId=${encodeURIComponent(excludeId)}&limit=${limit}`)).data;
   const products = await prisma.product.findMany({ where: { status: "ACTIVE", deletedAt: null, id: { not: excludeId }, category: { slug: categorySlug } }, include: productWithRelations, orderBy: { publishedAt: "desc" }, take: limit });
   return products.map(toCatalogProduct);
 }

@@ -2,6 +2,8 @@
 
 IVORY is a curated premium-fashion commerce application for new and authenticated preloved products. It includes the customer storefront, database-backed cart and checkout, account area, role-aware backoffice, and a controlled seller-consignment workflow.
 
+> Repository ini adalah **frontend**. Backend NestJS berada di repository `git@github.com:ulumudinsalsabila/be-onlineshop.git`. Selama migrasi, route handler legacy tetap tersedia sebagai fallback sampai account/admin/seller selesai dipindahkan.
+
 ## Tech stack
 
 - Next.js 16 App Router, React 19, strict TypeScript
@@ -114,6 +116,8 @@ AUTH_TRUST_HOST="true"
 ```
 
 Run `npm run dev`. `USE_MOCK_DATA=true` takes precedence even if an existing `.env` still contains `DATABASE_URL`. Homepage, catalog, search, product/category/brand pages, guest cart, and local wishlist work from the 30 products in `constants/catalog.ts`. Login mutations, account, checkout, orders, admin, and seller operations intentionally require PostgreSQL.
+
+To use the separated API locally, run repository backend on port `4000`, run `npm run dev` in this repository, and set `NEXT_PUBLIC_API_URL="http://localhost:4000/api"`. Leaving the variable empty keeps the legacy API fallback during the staged migration.
 
 ## Demo accounts
 

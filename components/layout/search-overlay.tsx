@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { searchData } from "@/constants/storefront";
+import { backendApiUrl } from "@/lib/backend-api";
 import type { CatalogProduct } from "@/types/catalog";
 
 export function SearchOverlay({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
@@ -23,7 +24,7 @@ export function SearchOverlay({ open, onOpenChange }: { open: boolean; onOpenCha
     if (!open) return;
     const controller = new AbortController();
     const timer = window.setTimeout(() => {
-      void fetch(`/api/search?q=${encodeURIComponent(query.trim())}`, { signal: controller.signal })
+      void fetch(backendApiUrl(`/search?q=${encodeURIComponent(query.trim())}`), { signal: controller.signal, credentials: "include" })
         .then((response) => response.json())
         .then((result: { success: boolean; data?: { suggestions?: CatalogProduct[] } }) => { if (result.success) setProducts(result.data?.suggestions ?? []); })
         .catch((error: unknown) => { if (!(error instanceof DOMException && error.name === "AbortError")) setProducts([]); });
