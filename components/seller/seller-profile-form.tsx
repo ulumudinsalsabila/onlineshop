@@ -11,6 +11,7 @@ import type { z } from "zod";
 import { sellerProfileSchema } from "@/lib/seller/schemas";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 type Values = z.input<typeof sellerProfileSchema>;
 export function SellerProfileForm({ initial }: { initial: Values }) {
@@ -76,7 +77,7 @@ export function SellerProfileForm({ initial }: { initial: Values }) {
             <FormItem className="sm:col-span-2">
               <FormLabel>Bio</FormLabel>
               <FormControl>
-                <textarea {...field} value={field.value ?? ""} className="min-h-28 w-full rounded-md border border-input bg-white p-3 text-sm" />
+                <Textarea {...field} value={field.value ?? ""} className="min-h-28 w-full rounded-md border border-input bg-white p-3 text-sm" />
               </FormControl>
               <FormMessage />
             </FormItem>

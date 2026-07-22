@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SearchableSelect, type SearchableSelectOption } from "@/components/ui/searchable-select";
 
 export function OrderStatusControl({ orderId, current }: { orderId: string; current: string }) {
   const router = useRouter();
@@ -36,22 +37,22 @@ export function OrderStatusControl({ orderId, current }: { orderId: string; curr
       setBusy(false);
     }
   }
+  const statusOptions: SearchableSelectOption[] = [
+    ...(current === "PAID" ? [{ value: "PROCESSING", label: "Processing" }] : []),
+    ...(current === "PROCESSING"
+      ? [
+          { value: "SHIPPED", label: "Shipped" },
+          { value: "CANCELLED", label: "Cancelled" },
+        ]
+      : []),
+    ...(current === "SHIPPED" ? [{ value: "DELIVERED", label: "Delivered" }] : []),
+    ...(["PAID", "PROCESSING", "SHIPPED", "DELIVERED"].includes(current) ? [{ value: "REFUNDED", label: "Refunded" }] : []),
+  ];
   return (
     <div className="space-y-4">
       <div>
         <Label htmlFor="next-status">Next status</Label>
-        <select id="next-status" value={status} onChange={(event) => setStatus(event.target.value)} className="mt-2 h-11 w-full rounded-md border border-input bg-white px-3 text-sm">
-          <option value="">Select action</option>
-          {current === "PAID" && <option value="PROCESSING">Processing</option>}
-          {current === "PROCESSING" && (
-            <>
-              <option value="SHIPPED">Shipped</option>
-              <option value="CANCELLED">Cancelled</option>
-            </>
-          )}
-          {current === "SHIPPED" && <option value="DELIVERED">Delivered</option>}
-          {["PAID", "PROCESSING", "SHIPPED", "DELIVERED"].includes(current) && <option value="REFUNDED">Refunded</option>}
-        </select>
+        <SearchableSelect id="next-status" value={status} onValueChange={setStatus} options={statusOptions} placeholder="Select action" searchPlaceholder="Search order statuses…" className="mt-2" />
       </div>
       {status === "SHIPPED" && (
         <div>

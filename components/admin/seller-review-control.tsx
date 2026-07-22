@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 export function SellerReviewControl({ id, status, rate }: { id: string; status: string; rate: number }) {
   const router = useRouter();
   const [reason, setReason] = useState("");
@@ -42,7 +43,7 @@ export function SellerReviewControl({ id, status, rate }: { id: string; status: 
       </div>
       <div>
         <Label htmlFor="seller-reason">Reason / review note</Label>
-        <textarea id="seller-reason" value={reason} onChange={(event) => setReason(event.target.value)} className="mt-2 min-h-24 w-full rounded-md border border-input bg-white p-3 text-sm" />
+        <Textarea id="seller-reason" value={reason} onChange={(event) => setReason(event.target.value)} className="mt-2 min-h-24 w-full rounded-md border border-input bg-white p-3 text-sm" />
       </div>
       <div className="flex gap-2">
         {["PENDING", "SUSPENDED"].includes(status) && (

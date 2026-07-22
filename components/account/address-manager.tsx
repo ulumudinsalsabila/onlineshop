@@ -8,6 +8,8 @@ import { PlusIcon, SpinnerGapIcon, TrashIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import type { PaginationMeta } from "@/components/account/lazy-account-list";
 
 export type Address = {
@@ -150,7 +152,7 @@ export function AddressManager({ initialAddresses, initialMeta }: { initialAddre
           <RegionFields />
           <input type="hidden" name="country" value="Indonesia" />
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" name="isDefault" /> Make this my default address
+            <Checkbox name="isDefault" /> Make this my default address
           </label>
           <div className="sm:col-span-2">
             <Button type="submit">Save address</Button>
@@ -256,14 +258,7 @@ function RegionSelect({ name, label, value, options, disabled, onChange }: { nam
   return (
     <div>
       <Label htmlFor={name}>{label}</Label>
-      <select id={name} name={name} value={onChange ? value : undefined} required disabled={disabled} onChange={onChange ? (event) => onChange(event.target.value) : undefined} className="mt-2 h-10 w-full border border-input bg-background px-3 text-sm disabled:cursor-not-allowed disabled:opacity-50">
-        <option value="">Select {label.toLowerCase()}</option>
-        {options.map((option) => (
-          <option key={option.code} value={option.code}>
-            {option.name}
-          </option>
-        ))}
-      </select>
+      <SearchableSelect id={name} name={name} value={value} required disabled={disabled} onValueChange={(nextValue) => onChange?.(nextValue)} options={options.map((option) => ({ value: option.code, label: option.name }))} placeholder={`Select ${label.toLowerCase()}`} searchPlaceholder={`Search ${label.toLowerCase()}…`} className="mt-2 h-10 rounded-none bg-background" />
     </div>
   );
 }

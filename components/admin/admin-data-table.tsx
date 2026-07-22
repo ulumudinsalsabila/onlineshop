@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export type AdminTableColumn = {
@@ -81,35 +81,8 @@ export function AdminDataTable({ columns, rows, page, totalPages, total, bulkEnd
           <MagnifyingGlassIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
           <Input name="q" defaultValue={searchParams.get("q") ?? ""} placeholder="Search…" className="bg-white pl-9" />
         </form>
-        {filters && (
-          <Select value={searchParams.get("status") ?? "all"} onValueChange={(value) => update("status", value === "all" ? "" : value)}>
-            <SelectTrigger className="w-40 bg-white">
-              <SelectValue placeholder="Filter" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All status</SelectItem>
-              {filters.map((item) => (
-                <SelectItem key={item.value} value={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-        {sortOptions && (
-          <Select value={searchParams.get("sort") ?? sortOptions[0]?.value} onValueChange={(value) => update("sort", value)}>
-            <SelectTrigger className="w-44 bg-white">
-              <SelectValue placeholder="Sort" />
-            </SelectTrigger>
-            <SelectContent>
-              {sortOptions.map((item) => (
-                <SelectItem key={item.value} value={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+        {filters && <SearchableSelect value={searchParams.get("status") ?? "all"} onValueChange={(value) => update("status", value === "all" ? "" : value)} options={[{ value: "all", label: "All statuses" }, ...filters]} placeholder="Filter" searchPlaceholder="Search statuses…" className="w-40 bg-white" />}
+        {sortOptions && <SearchableSelect value={searchParams.get("sort") ?? sortOptions[0]?.value} onValueChange={(value) => update("sort", value)} options={sortOptions} placeholder="Sort" searchPlaceholder="Search sorting options…" className="w-44 bg-white" />}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon" aria-label="Column visibility">

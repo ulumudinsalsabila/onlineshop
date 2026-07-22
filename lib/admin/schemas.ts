@@ -5,8 +5,8 @@ const optionalText = (max: number) => z.string().trim().max(max).transform((valu
 const slug = z.string().trim().min(2).max(100).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 const money = z.coerce.number().nonnegative().max(999_999_999_999);
 const isAssetUrl = (value: string) => value.startsWith("/") || /^https:\/\//i.test(value) || /^http:\/\/localhost(?::\d+)?\//i.test(value);
-const assetUrl = z.string().trim().max(500).refine(isAssetUrl, "Gunakan path lokal, URL localhost, atau URL HTTPS.");
-const optionalAssetUrl = z.string().trim().max(500).refine((value) => !value || isAssetUrl(value), "Gunakan path lokal, URL localhost, atau URL HTTPS.").optional();
+const assetUrl = z.string().trim().max(500).refine(isAssetUrl, "Use a local path, localhost URL, or HTTPS URL.");
+const optionalAssetUrl = z.string().trim().max(500).refine((value) => !value || isAssetUrl(value), "Use a local path, localhost URL, or HTTPS URL.").optional();
 
 export const productAdminSchema = z.object({
   name: clean(160), slug, baseSku: z.string().trim().min(2).max(80).regex(/^[A-Z0-9_-]+$/i), categoryId: z.string().cuid(), brandId: z.string().cuid(),

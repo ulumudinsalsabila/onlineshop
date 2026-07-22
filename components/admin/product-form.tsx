@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
+import { Textarea } from "@/components/ui/textarea";
 
 type Values = z.input<typeof productAdminSchema>;
 type Option = { id: string; name: string };
@@ -339,7 +341,7 @@ function TextAreaField({ form, name, label }: { form: AnyForm; name: Parameters<
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <textarea {...field} value={(field.value as string | undefined) ?? ""} className="min-h-28 w-full rounded-md border border-input bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-ring/30" />
+            <Textarea {...field} value={(field.value as string | undefined) ?? ""} className="min-h-28 w-full rounded-md border border-input bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-ring/30" />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -356,13 +358,7 @@ function SelectField({ form, name, label, options }: { form: AnyForm; name: Para
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <select {...field} value={String(field.value ?? "")} className="h-11 w-full rounded-md border border-input bg-white px-3 text-sm">
-              {options.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.name}
-                </option>
-              ))}
-            </select>
+            <SearchableSelect ref={field.ref} name={field.name} onBlur={field.onBlur} value={String(field.value ?? "")} onValueChange={field.onChange} options={options.map((option) => ({ value: option.id, label: option.name }))} placeholder={`Select ${label.toLowerCase()}`} searchPlaceholder={`Search ${label.toLowerCase()}…`} />
           </FormControl>
           <FormMessage />
         </FormItem>

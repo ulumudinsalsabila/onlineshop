@@ -34,7 +34,7 @@ export default async function SellPage() {
         </div>
         <section className="border border-border bg-secondary/25 p-6 sm:p-8">
           <h2 className="font-serif text-3xl">Seller application</h2>
-          <p className="mt-2 text-sm text-muted-foreground">Data ini hanya digunakan untuk review dan pembayaran.</p>
+          <p className="mt-2 text-sm text-muted-foreground">This data is used only for review and payment.</p>
           <div className="mt-7">
             <SellerApplicationForm />
           </div>

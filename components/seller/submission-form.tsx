@@ -12,6 +12,8 @@ import { submissionSchema } from "@/lib/seller/schemas";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { SearchableSelect } from "@/components/ui/searchable-select";
+import { Textarea } from "@/components/ui/textarea";
 type Values = z.input<typeof submissionSchema>;
 type Option = { id: string; name: string };
 export function SubmissionForm({ categories, brands, submissionId, initial }: { categories: Option[]; brands: Option[]; submissionId?: string; initial?: Values }) {
@@ -66,9 +68,9 @@ export function SubmissionForm({ categories, brands, submissionId, initial }: { 
     <Form {...form}>
       <form onSubmit={form.handleSubmit(save)} className="grid gap-5 border border-[#ddd5c7] bg-[#faf8f3] p-5 sm:grid-cols-2 sm:p-7">
         <Field form={form} name="title" label="Product name" />
-        <SelectField form={form} name="categoryId" label="Kategori" options={categories} />
+        <SelectField form={form} name="categoryId" label="Category" options={categories} />
         <SelectField form={form} name="brandId" label="Brand" options={[{ id: "", name: "Brand not listed" }, ...brands]} />
-        <Field form={form} name="proposedBrand" label="Usulan brand" />
+        <Field form={form} name="proposedBrand" label="Proposed brand" />
         <SelectField
           form={form}
           name="conditionLabel"
@@ -119,7 +121,7 @@ function Area({ form, name, label, wide }: { form: F; name: Parameters<F["regist
         <FormItem className={wide ? "sm:col-span-2" : ""}>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <textarea {...field} value={(field.value as string | undefined) ?? ""} className="min-h-28 w-full rounded-md border border-input bg-white p-3 text-sm" />
+            <Textarea {...field} value={(field.value as string | undefined) ?? ""} className="min-h-28 w-full rounded-md border border-input bg-white p-3 text-sm" />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -136,13 +138,7 @@ function SelectField({ form, name, label, options }: { form: F; name: Parameters
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <select {...field} value={String(field.value ?? "")} className="h-11 w-full rounded-md border border-input bg-white px-3 text-sm">
-              {options.map((option) => (
-                <option key={option.id || "empty"} value={option.id}>
-                  {option.name}
-                </option>
-              ))}
-            </select>
+            <SearchableSelect ref={field.ref} name={field.name} onBlur={field.onBlur} value={String(field.value ?? "")} onValueChange={field.onChange} options={options.map((option) => ({ value: option.id, label: option.name }))} placeholder={`Select ${label.toLowerCase()}`} searchPlaceholder={`Search ${label.toLowerCase()}…`} />
           </FormControl>
           <FormMessage />
         </FormItem>

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 export function CustomerAccessControl({ id, initialActive, initialRole, initialVerified }: { id: string; initialActive: boolean; initialRole: string; initialVerified: boolean }) {
   const router = useRouter();
@@ -51,11 +52,18 @@ export function CustomerAccessControl({ id, initialActive, initialRole, initialV
       </div>
       <div>
         <Label htmlFor="account-role">Role</Label>
-        <select id="account-role" value={role} onChange={(event) => setRole(event.target.value)} className="mt-2 h-11 w-full rounded-md border border-input bg-white px-3 text-sm">
-          <option value="CUSTOMER">Customer</option>
-          <option value="STAFF">Staff</option>
-          <option value="ADMIN">Admin</option>
-        </select>
+        <SearchableSelect
+          id="account-role"
+          value={role}
+          onValueChange={setRole}
+          options={[
+            { value: "CUSTOMER", label: "Customer" },
+            { value: "STAFF", label: "Staff" },
+            { value: "ADMIN", label: "Admin" },
+          ]}
+          searchPlaceholder="Search roles…"
+          className="mt-2"
+        />
       </div>
       <Button className="w-full" onClick={() => void save()} disabled={busy}>
         {busy && <SpinnerGapIcon className="animate-spin" aria-hidden />}Save access

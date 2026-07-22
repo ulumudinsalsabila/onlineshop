@@ -16,6 +16,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
+import { Textarea } from "@/components/ui/textarea";
 
 type Entity = "categories" | "brands" | "vouchers" | "banners" | "testimonials";
 type FormValue = string | number | boolean | null | undefined | Date;
@@ -114,24 +116,7 @@ export function EntityManager({ entity, fields, defaults, initial, triggerLabel 
                 render={({ field: control }) => (
                   <FormItem className={field.type === "textarea" ? "sm:col-span-2" : ""}>
                     <FormLabel>{field.label}</FormLabel>
-                    <FormControl>
-                      {field.type === "checkbox" ? (
-                        <Checkbox checked={Boolean(control.value)} onCheckedChange={control.onChange} />
-                      ) : field.type === "textarea" ? (
-                        <textarea name={control.name} ref={control.ref} onBlur={control.onBlur} value={String(control.value ?? "")} onChange={control.onChange} className="min-h-28 w-full rounded-md border border-input bg-white p-3 text-sm" />
-                      ) : field.type === "select" ? (
-                        <select name={control.name} ref={control.ref} onBlur={control.onBlur} value={String(control.value ?? "")} onChange={control.onChange} className="h-11 w-full rounded-md border border-input bg-white px-3 text-sm">
-                          <option value="">None</option>
-                          {field.options?.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <Input {...control} value={control.value instanceof Date ? toLocal(control.value) : String(control.value ?? "")} type={field.type ?? "text"} />
-                      )}
-                    </FormControl>
+                    <FormControl>{field.type === "checkbox" ? <Checkbox checked={Boolean(control.value)} onCheckedChange={control.onChange} /> : field.type === "textarea" ? <Textarea name={control.name} ref={control.ref} onBlur={control.onBlur} value={String(control.value ?? "")} onChange={control.onChange} className="min-h-28 w-full rounded-md border border-input bg-white p-3 text-sm" /> : field.type === "select" ? <SearchableSelect name={control.name} ref={control.ref} onBlur={control.onBlur} value={String(control.value ?? "")} onValueChange={control.onChange} options={[{ value: "", label: "None" }, ...(field.options ?? [])]} placeholder={`Select ${field.label.toLowerCase()}`} searchPlaceholder={`Search ${field.label.toLowerCase()}…`} /> : <Input {...control} value={control.value instanceof Date ? toLocal(control.value) : String(control.value ?? "")} type={field.type ?? "text"} />}</FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

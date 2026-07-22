@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SearchableSelect } from "@/components/ui/searchable-select";
+import { Textarea } from "@/components/ui/textarea";
 type Option = { id: string; name: string };
 export function ConsignmentControls({ id, status, title, initialPrice, initialRate, categories, brands }: { id: string; status: string; title: string; initialPrice: number; initialRate: number; categories: Option[]; brands: Option[] }) {
   const router = useRouter();
@@ -68,7 +70,7 @@ export function ConsignmentControls({ id, status, title, initialPrice, initialRa
           )}
           <div>
             <Label htmlFor="review-reason">Reason / note</Label>
-            <textarea id="review-reason" value={reason} onChange={(event) => setReason(event.target.value)} className="mt-2 min-h-20 w-full rounded-md border bg-white p-3 text-sm" />
+            <Textarea id="review-reason" value={reason} onChange={(event) => setReason(event.target.value)} className="mt-2 min-h-20 w-full rounded-md border bg-white p-3 text-sm" />
           </div>
           <div className="grid gap-2">
             {status === "SUBMITTED" && (
@@ -155,7 +157,7 @@ export function ConsignmentControls({ id, status, title, initialPrice, initialRa
             </label>
           ))}
           <Input type="number" value={price} onChange={(event) => setPrice(Number(event.target.value))} aria-label="Recommended price" className="bg-white" />
-          <textarea value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Inspection notes" className="min-h-20 w-full rounded-md border bg-white p-3 text-sm" />
+          <Textarea value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Inspection notes" className="min-h-20 w-full rounded-md border bg-white p-3 text-sm" />
           <Button
             disabled={busy}
             onClick={() =>
@@ -200,20 +202,26 @@ export function ConsignmentControls({ id, status, title, initialPrice, initialRa
           <h3 className="font-serif text-xl">Publish product</h3>
           <Input value={productName} onChange={(event) => setProductName(event.target.value)} aria-label="Product name" className="bg-white" />
           <Input value={slug} onChange={(event) => setSlug(event.target.value)} aria-label="Product slug" className="bg-white" />
-          <select value={brandId} onChange={(event) => setBrand(event.target.value)} className="h-11 w-full rounded-md border bg-white px-3 text-sm" aria-label="Brand">
-            {brands.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-          <select value={categoryId} onChange={(event) => setCategory(event.target.value)} className="h-11 w-full rounded-md border bg-white px-3 text-sm" aria-label="Category">
-            {categories.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-              </option>
-            ))}
-          </select>
+          <SearchableSelect
+            value={brandId}
+            onValueChange={setBrand}
+            options={brands.map((item) => ({
+              value: item.id,
+              label: item.name,
+            }))}
+            searchPlaceholder="Search brands…"
+            aria-label="Brand"
+          />
+          <SearchableSelect
+            value={categoryId}
+            onValueChange={setCategory}
+            options={categories.map((item) => ({
+              value: item.id,
+              label: item.name,
+            }))}
+            searchPlaceholder="Search categories…"
+            aria-label="Category"
+          />
           <Input type="number" value={price} onChange={(event) => setPrice(Number(event.target.value))} aria-label="Listing price" className="bg-white" />
           <Button
             disabled={busy}
