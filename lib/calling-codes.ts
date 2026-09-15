@@ -1,0 +1,40 @@
+export const callingCodes = [
+  { country: "Indonesia", iso: "ID", code: "+62", flag: "🇮🇩" },
+  { country: "Malaysia", iso: "MY", code: "+60", flag: "🇲🇾" },
+  { country: "Singapore", iso: "SG", code: "+65", flag: "🇸🇬" },
+  { country: "Thailand", iso: "TH", code: "+66", flag: "🇹🇭" },
+  { country: "Philippines", iso: "PH", code: "+63", flag: "🇵🇭" },
+  { country: "Vietnam", iso: "VN", code: "+84", flag: "🇻🇳" },
+  { country: "Brunei", iso: "BN", code: "+673", flag: "🇧🇳" },
+  { country: "Cambodia", iso: "KH", code: "+855", flag: "🇰🇭" },
+  { country: "Laos", iso: "LA", code: "+856", flag: "🇱🇦" },
+  { country: "Myanmar", iso: "MM", code: "+95", flag: "🇲🇲" },
+  { country: "Timor-Leste", iso: "TL", code: "+670", flag: "🇹🇱" },
+  { country: "Australia", iso: "AU", code: "+61", flag: "🇦🇺" },
+  { country: "China", iso: "CN", code: "+86", flag: "🇨🇳" },
+  { country: "Hong Kong", iso: "HK", code: "+852", flag: "🇭🇰" },
+  { country: "India", iso: "IN", code: "+91", flag: "🇮🇳" },
+  { country: "Japan", iso: "JP", code: "+81", flag: "🇯🇵" },
+  { country: "South Korea", iso: "KR", code: "+82", flag: "🇰🇷" },
+  { country: "Taiwan", iso: "TW", code: "+886", flag: "🇹🇼" },
+  { country: "New Zealand", iso: "NZ", code: "+64", flag: "🇳🇿" },
+  { country: "Saudi Arabia", iso: "SA", code: "+966", flag: "🇸🇦" },
+  { country: "United Arab Emirates", iso: "AE", code: "+971", flag: "🇦🇪" },
+  { country: "Turkey", iso: "TR", code: "+90", flag: "🇹🇷" },
+  { country: "France", iso: "FR", code: "+33", flag: "🇫🇷" },
+  { country: "Germany", iso: "DE", code: "+49", flag: "🇩🇪" },
+  { country: "Italy", iso: "IT", code: "+39", flag: "🇮🇹" },
+  { country: "Netherlands", iso: "NL", code: "+31", flag: "🇳🇱" },
+  { country: "Spain", iso: "ES", code: "+34", flag: "🇪🇸" },
+  { country: "Switzerland", iso: "CH", code: "+41", flag: "🇨🇭" },
+  { country: "United Kingdom", iso: "GB", code: "+44", flag: "🇬🇧" },
+  { country: "United States / Canada", iso: "US-CA", code: "+1", flag: "🇺🇸" },
+  { country: "Brazil", iso: "BR", code: "+55", flag: "🇧🇷" },
+  { country: "Mexico", iso: "MX", code: "+52", flag: "🇲🇽" },
+  { country: "South Africa", iso: "ZA", code: "+27", flag: "🇿🇦" },
+] as const;
+
+export function toInternationalPhone(callingCode: string, nationalNumber: string) {
+  const digits = nationalNumber.replace(/\D/g, "").replace(/^0+/, "");
+  return `${callingCode}${digits}`;
+}

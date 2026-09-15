@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatIDR } from "@/lib/formatters";
 import { RegionFields, type RegionSelection } from "@/components/account/address-manager";
+import { addressDestinationQueries, bestDestination } from "@/lib/checkout/shipping-destination";
 
 type Address = {
   id: string;
@@ -178,8 +179,8 @@ export function CheckoutFlow() {
     setDestinationState(value.trim().length < 3 ? "idle" : "loading");
   }
 
-  async function loadRates() {
-    if (!destination) {
+  async function loadRatesForDestination(selectedDestination: Destination | null) {
+    if (!selectedDestination) {
       toast.error("Select a destination district or city first.");
       return;
     }
@@ -199,7 +200,7 @@ export function CheckoutFlow() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          destinationId: destination.id,
+          destinationId: selectedDestination.id,
           cartId: context.cartId,
         }),
       });
@@ -214,6 +215,49 @@ export function CheckoutFlow() {
         code: "NETWORK_ERROR",
         message: "The connection to the shipping service was interrupted.",
       });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function loadRates() {
+    await loadRatesForDestination(destination);
+  }
+
+  async function prepareShippingForAddress(address: Address) {
+    setBusy(true);
+    setDestinationState("loading");
+    setDestinations([]);
+    setDestination(null);
+    setQuotes([]);
+    setQuote(null);
+    setRateError(null);
+    setTotals(null);
+    const queries = addressDestinationQueries(address);
+    try {
+      let selected: Destination | null = null;
+      for (const query of queries) {
+        const response = await apiFetch(`/api/shipping/destinations?search=${encodeURIComponent(query)}`, { cache: "no-store" });
+        const result = (await response.json()) as ApiResult<{ items: Destination[] }>;
+        if (!result.success) throw Object.assign(new Error(result.error.message), { code: result.error.code });
+        if (result.data.items.length) {
+          selected = bestDestination(address, result.data.items);
+          if (selected) break;
+        }
+      }
+      if (!selected) {
+        setDestinationQuery(queries[0] ?? `${address.district}, ${address.city}`);
+        setDestinationState("empty");
+        return;
+      }
+      setDestination(selected);
+      setDestinationQuery(selected.label);
+      setDestinationState("ready");
+      await loadRatesForDestination(selected);
+    } catch (error: unknown) {
+      const code = error instanceof Error && "code" in error ? String(error.code) : "";
+      setDestinationQuery(queries[0] ?? `${address.district}, ${address.city}`);
+      setDestinationState(code === "SHIPPING_TIMEOUT" ? "timeout" : code === "SHIPPING_QUOTA_EXCEEDED" || code === "RATE_LIMITED" ? "quota" : "error");
     } finally {
       setBusy(false);
     }
@@ -305,6 +349,11 @@ export function CheckoutFlow() {
       toast.error("Select a shipping address.");
       return;
     }
+    if (step === 1) {
+      if (selectedAddress) await prepareShippingForAddress(selectedAddress);
+      setStep(2);
+      return;
+    }
     if (step === 2 && !quote) {
       toast.error("Check the shipping rates and select a shipping service.");
       return;
@@ -344,8 +393,13 @@ export function CheckoutFlow() {
                 addressId={addressId}
                 setAddressId={(value) => {
                   setAddressId(value);
+                  setDestination(null);
+                  setDestinationQuery("");
+                  setDestinations([]);
+                  setDestinationState("idle");
                   setQuote(null);
                   setQuotes([]);
+                  setRateError(null);
                   setTotals(null);
                 }}
                 adding={addingAddress}

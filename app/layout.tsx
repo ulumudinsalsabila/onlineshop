@@ -43,7 +43,7 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, them
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${bodyFont.variable} ${editorialFont.variable}`}>
+    <html lang="en" className={`${bodyFont.variable} ${editorialFont.variable}`} suppressHydrationWarning>
       <body>
         <a href="#main-content" className="fixed top-2 left-2 z-[110] -translate-y-20 bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-transform focus:translate-y-0">Skip to main content</a>
         <JsonLd data={{ "@context": "https://schema.org", "@type": "Organization", name: SITE_CONFIG.name, url: absoluteUrl("/"), logo: absoluteUrl("/logo.png"), email: "care@ivory.id", contactPoint: [{ "@type": "ContactPoint", contactType: "customer service", availableLanguage: ["id", "en"] }] }} />

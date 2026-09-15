@@ -7,10 +7,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRightIcon, CheckCircleIcon, EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
 import { safeRedirectPath } from "@/lib/safe-redirect";
+import { callingCodes, toInternationalPhone } from "@/lib/calling-codes";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Mode = "login" | "register" | "forgot" | "reset";
 
@@ -20,6 +22,8 @@ export function AuthForm({ mode, callbackUrl = "/account", email = "", token = "
   const [message, setMessage] = useState(verified ? "Your email has been verified. You can now sign in." : verificationEmailFailed ? "Your account was created, but the verification email could not be delivered. Please resend it." : registered ? "Registration successful. Check your email to verify the account, then sign in." : invalidToken ? "This verification link is invalid or has expired." : "");
   const [success, setSuccess] = useState(verified || (registered && !verificationEmailFailed));
   const [showPassword, setShowPassword] = useState(false);
+  const [callingCode, setCallingCode] = useState("+62");
+  const selectedCountry = callingCodes.find((item) => item.code === callingCode) ?? callingCodes[0];
 
   async function resendVerification() {
     if (!email) return;
@@ -47,7 +51,11 @@ export function AuthForm({ mode, callbackUrl = "/account", email = "", token = "
         router.replace(destination); router.refresh(); return;
       }
       const endpoint = mode === "register" ? "/api/auth/register" : mode === "forgot" ? "/api/auth/forgot-password" : "/api/auth/reset-password";
-      const body = mode === "reset" ? { ...values, email, token } : values;
+      const body = mode === "reset"
+        ? { ...values, email, token }
+        : mode === "register"
+          ? { ...values, phone: toInternationalPhone(callingCode, String(values.phone ?? "")) }
+          : values;
       const response = await apiFetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const result = await response.json() as { success: boolean; data?: { message?: string; verificationEmailSent?: boolean }; error?: { message?: string; details?: { fieldErrors?: Record<string, string[]> } } };
       if (!response.ok || !result.success) {
@@ -64,6 +72,29 @@ export function AuthForm({ mode, callbackUrl = "/account", email = "", token = "
     <form onSubmit={submit} className="mt-8 space-y-5">
       {mode === "register" ? <Field id="name" label="Full name" autoComplete="name" /> : null}
       {mode !== "reset" ? <Field id="email" label="Email" type="email" autoComplete="email" defaultValue={email} /> : <p className="border border-border bg-secondary/40 px-4 py-3 text-sm">Reset password for <strong>{email}</strong></p>}
+      {mode === "register" ? (
+        <div>
+          <Label htmlFor="phone">Phone number</Label>
+          <div className="mt-2 flex gap-2">
+            <Select value={callingCode} onValueChange={setCallingCode}>
+              <SelectTrigger aria-label="Country calling code" className="h-10 w-[116px] shrink-0">
+                <SelectValue><span aria-hidden>{selectedCountry.flag}</span> {selectedCountry.code}</SelectValue>
+              </SelectTrigger>
+              <SelectContent className="max-h-72">
+                {callingCodes.map((item) => (
+                  <SelectItem key={item.iso} value={item.code}>
+                    <span aria-hidden>{item.flag}</span>
+                    <span>{item.code}</span>
+                    <span className="text-muted-foreground">{item.country}</span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input id="phone" name="phone" type="tel" inputMode="tel" autoComplete="tel-national" placeholder="812 3456 7890" required minLength={7} maxLength={18} className="min-w-0 flex-1" />
+          </div>
+          <p className="mt-1.5 text-xs text-muted-foreground">Select a country, then enter the number without its country code.</p>
+        </div>
+      ) : null}
       {mode === "login" || mode === "register" || mode === "reset" ? (
         <div><Label htmlFor="password">Password</Label><div className="relative mt-2"><Input id="password" name="password" type={showPassword ? "text" : "password"} autoComplete={mode === "login" ? "current-password" : "new-password"} required minLength={mode === "login" ? 1 : 10} className="pr-12" /><button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Hide password" : "Show password"} className="absolute inset-y-0 right-0 grid w-11 place-items-center"><span aria-hidden>{showPassword ? <EyeSlashIcon /> : <EyeIcon />}</span></button></div></div>
       ) : null}

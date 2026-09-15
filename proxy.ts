@@ -8,7 +8,6 @@ export function proxy(request: import("next/server").NextRequest) {
     login.searchParams.set("callbackUrl", `${request.nextUrl.pathname}${request.nextUrl.search}`);
     return NextResponse.redirect(login);
   }
-  if (authenticated && ["/login", "/register"].includes(request.nextUrl.pathname)) return NextResponse.redirect(new URL("/account", request.nextUrl.origin));
   return NextResponse.next();
 }
 
