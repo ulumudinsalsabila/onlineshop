@@ -12,13 +12,14 @@ import { useCommerce } from "@/components/shared/commerce-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { catalogColors } from "@/constants/catalog";
 import { clampQuantity } from "@/lib/cart";
 import { cn } from "@/lib/utils";
 import type { CatalogProduct } from "@/types/catalog";
 import type { ProductEditorialDetails } from "@/types/commerce";
 
-export function ProductPurchasePanel({ product, details }: { product: CatalogProduct; details: ProductEditorialDetails }) {
+export function ProductPurchasePanel({ product, details, shareUrl }: { product: CatalogProduct; details: ProductEditorialDetails; shareUrl: string }) {
   const router = useRouter();
   const { addToCart, toggleWishlist, wishlistIds } = useCommerce();
   const [color, setColor] = useState(product.colors[0] ?? "default");
@@ -38,15 +39,18 @@ export function ProductPurchasePanel({ product, details }: { product: CatalogPro
     return true;
   }
 
-  async function share() {
-    const data = { title: product.name, text: `Discover ${product.name} by ${product.brand}`, url: window.location.href };
+  async function shareNative() {
+    const data = { title: product.name, text: `Discover ${product.name} by ${product.brand}`, url: shareUrl };
     try {
       if (navigator.share) await navigator.share(data);
-      else { await navigator.clipboard.writeText(window.location.href); toast.success("Product link copied"); }
+      else { await navigator.clipboard.writeText(shareUrl); toast.success("Product link copied"); }
     } catch {
       // The native share dialog can be dismissed without requiring feedback.
     }
   }
+  function socialUrl(channel: "whatsapp" | "facebook" | "x" | "telegram") { const url = encodeURIComponent(shareUrl); const text = encodeURIComponent(`Discover ${product.name} by ${product.brand}`); return channel === "whatsapp" ? `https://wa.me/?text=${text}%20${url}` : channel === "facebook" ? `https://www.facebook.com/sharer/sharer.php?u=${url}` : channel === "x" ? `https://twitter.com/intent/tweet?text=${text}&url=${url}` : `https://t.me/share/url?url=${url}&text=${text}`; }
+  function openSocial(channel: "whatsapp" | "facebook" | "x" | "telegram") { window.open(socialUrl(channel), "_blank", "noopener,noreferrer"); }
+  async function copyLink() { await navigator.clipboard.writeText(shareUrl); toast.success("Product link copied"); }
 
   return (
     <div className="lg:sticky lg:top-44">
@@ -82,7 +86,7 @@ export function ProductPurchasePanel({ product, details }: { product: CatalogPro
       </div>
       <div className="mt-3 grid grid-cols-2 gap-3">
         <Button variant="ghost" onClick={() => { const next = toggleWishlist(product.id); toast(next ? "Added to wishlist" : "Removed from wishlist"); }}><HeartIcon weight={wishlisted ? "fill" : "regular"} className={wishlisted ? "text-destructive" : undefined} aria-hidden /> {wishlisted ? "Wishlisted" : "Wishlist"}</Button>
-        <Button variant="ghost" onClick={share}><ShareNetworkIcon aria-hidden /> Share</Button>
+        <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost"><ShareNetworkIcon aria-hidden /> Share</Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => void shareNative()}>Share from device</DropdownMenuItem><DropdownMenuItem onSelect={() => openSocial("whatsapp")}>WhatsApp</DropdownMenuItem><DropdownMenuItem onSelect={() => openSocial("facebook")}>Facebook</DropdownMenuItem><DropdownMenuItem onSelect={() => openSocial("x")}>X / Twitter</DropdownMenuItem><DropdownMenuItem onSelect={() => openSocial("telegram")}>Telegram</DropdownMenuItem><DropdownMenuItem onSelect={() => void copyLink()}>Copy link</DropdownMenuItem></DropdownMenuContent></DropdownMenu>
       </div>
 
       {product.conditionType === "preloved" ? (

@@ -2,8 +2,14 @@ import type { Metadata } from "next";
 
 import { SITE_CONFIG } from "@/constants/site";
 
-export const SITE_URL = new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000");
+export const SITE_URL = validatedSiteUrl(process.env.NEXT_PUBLIC_APP_URL);
 export const DEFAULT_OG_IMAGE = "/images/home/hero-home.png";
+
+function validatedSiteUrl(configured: string | undefined) {
+  const url = new URL(configured?.trim() || "http://localhost:3000");
+  if (!["http:", "https:"].includes(url.protocol) || url.username || url.password || url.search || url.hash) throw new Error("NEXT_PUBLIC_APP_URL must be a valid HTTP(S) origin.");
+  return new URL(url.origin);
+}
 
 export function absoluteUrl(path = "/") {
   return new URL(path, SITE_URL).toString();

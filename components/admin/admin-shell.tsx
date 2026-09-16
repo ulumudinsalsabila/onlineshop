@@ -117,6 +117,13 @@ const navigation: NavItem[] = [
     group: "System",
   },
   {
+    label: "Tax settings",
+    href: "/admin/settings/tax",
+    permission: "dashboard:read",
+    icon: ReceiptIcon,
+    group: "System",
+  },
+  {
     label: "Audit logs",
     href: "/admin/audit-logs",
     permission: "audit:read",
@@ -130,7 +137,7 @@ export function AdminShell({ children, user, notifications }: { children: ReactN
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const items = navigation.filter((item) => hasAdminPermission(user.role, item.permission));
+  const items = navigation.filter((item) => hasAdminPermission(user.role, item.permission) && (item.href !== "/admin/settings/tax" || user.role === "ADMIN"));
   function search(formData: FormData) {
     const query = String(formData.get("q") ?? "").trim();
     if (query) router.push(`/admin/search?q=${encodeURIComponent(query)}`);

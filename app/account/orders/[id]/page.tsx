@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AccountHeading } from "@/components/account/account-heading";
+import { CompleteOrderButton } from "@/components/account/complete-order-button";
 import { Price } from "@/components/shared/price";
 import { Button } from "@/components/ui/button";
 import { authenticatedBackendApi } from "@/lib/authenticated-backend-api";
@@ -16,6 +17,8 @@ type Order = {
   subtotal: string | number;
   discountTotal: string | number;
   shippingTotal: string | number;
+  taxTotal: string | number;
+  taxName: string | null;
   grandTotal: string | number;
   shippingCourierName: string | null;
   shippingServiceName: string | null;
@@ -69,6 +72,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             <Row label="Subtotal" value={formatIDR(Number(order.subtotal))} />
             <Row label="Discount" value={formatIDR(Number(order.discountTotal))} />
             <Row label="Shipping" value={formatIDR(Number(order.shippingTotal))} />
+            {Number(order.taxTotal) > 0 ? <Row label={order.taxName ?? "Tax"} value={formatIDR(Number(order.taxTotal))} /> : null}
             <Row label="Grand total" value={formatIDR(Number(order.grandTotal))} strong />
           </dl>
           <div className="mt-6 border-t border-border pt-5 text-xs">
@@ -96,6 +100,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                   <Link href={`/account/orders/${order.id}/tracking`}>View shipment</Link>
                 </Button>
               )}
+              {order.status === "DELIVERED" ? <CompleteOrderButton orderId={order.id} /> : null}
             </div>
           ) : null}
         </aside>

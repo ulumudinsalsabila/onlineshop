@@ -69,6 +69,8 @@ type Totals = {
   subtotal: number;
   discountTotal: number;
   shippingTotal: number;
+  taxTotal: number;
+  tax: { name: string; rate: number; mode: "INCLUSIVE" | "EXCLUSIVE" } | null;
   grandTotal: number;
   voucherCode: string | null;
 };
@@ -471,6 +473,7 @@ export function CheckoutFlow() {
           <SummaryRow label="Subtotal" value={rawSubtotal} />
           <SummaryRow label="Discount" value={totals?.discountTotal ?? 0} />
           <SummaryRow label="Shipping" value={totals?.shippingTotal ?? quote?.cost ?? 0} />
+          {totals && totals.taxTotal > 0 ? <SummaryRow label={totals.tax?.name ?? "Tax"} value={totals.taxTotal} /> : null}
           <SummaryRow label="Total" value={totals?.grandTotal ?? rawSubtotal + (quote?.cost ?? 0)} strong />
         </dl>
         <p className="mt-4 text-[0.6875rem] leading-5 text-muted-foreground">The server recalculates the final total when your order is created.</p>

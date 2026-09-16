@@ -10,6 +10,7 @@ import { ProductForm } from "@/components/admin/product-form";
 import { RecordEditor, type RecordField } from "@/components/admin/record-editor";
 import { SectionVisibility } from "@/components/admin/section-visibility";
 import { SellerReviewControl } from "@/components/admin/seller-review-control";
+import { ProductSalesReport } from "@/components/admin/product-sales-report";
 import { Button } from "@/components/ui/button";
 import { authenticatedBackendApi } from "@/lib/authenticated-backend-api";
 import { requireAdmin } from "@/lib/admin/auth";
@@ -18,13 +19,13 @@ import type { AdminPermission } from "@/lib/admin/permissions";
 type Search = Promise<Record<string, string | string[] | undefined>>;
 type Value = null | string | number | boolean | Date | Value[] | { [key: string]: Value };
 type Obj = { [key: string]: Value };
-const viewNames: Record<string, string> = { "": "dashboard", products: "products", orders: "orders", customers: "customers", users: "customers", categories: "categories", brands: "brands", vouchers: "vouchers", content: "content", testimonials: "content", inventory: "inventory", shipments: "shipments", "audit-logs": "audit", reports: "reports", search: "search", sellers: "sellers", "sellers/activity": "seller-activity", "sellers/payouts": "payouts", "sellers/submissions": "submissions" };
+const viewNames: Record<string, string> = { "": "dashboard", products: "products", orders: "orders", customers: "customers", users: "customers", categories: "categories", brands: "brands", vouchers: "vouchers", content: "content", testimonials: "content", inventory: "inventory", shipments: "shipments", "audit-logs": "audit", reports: "reports", "settings/tax": "tax-settings", search: "search", sellers: "sellers", "sellers/activity": "seller-activity", "sellers/payouts": "payouts", "sellers/submissions": "submissions" };
 
 export default async function RemoteAdminPage({ params, searchParams }: { params: Promise<{ segments?: string[] }>; searchParams: Search }) {
   const segments = (await params).segments ?? []; const path = segments.join("/"); const admin = await requireAdmin(permissionForPath(path)); const query = new URLSearchParams();
   for (const [key, value] of Object.entries(await searchParams)) if (typeof value === "string") query.set(key, value);
   const detail = detailEndpoint(segments); const view = viewNames[path]; const isNewProduct = path === "products/new"; if (!detail && !view && !isNewProduct) notFound();
-  const endpoint = detail ?? `/admin/views/${view ?? "options"}${query.size ? `?${query}` : ""}`;
+  const endpoint = detail ?? (path === "reports" ? `/admin/reports/products${query.size ? `?${query}` : ""}` : `/admin/views/${view ?? "options"}${query.size ? `?${query}` : ""}`);
   const data = (await authenticatedBackendApi<Value>(endpoint, { cache: "no-store" })).data;
   const options = isNewProduct || segments[0] === "products" && segments[1] ? (await authenticatedBackendApi<Obj>("/admin/views/options", { cache: "no-store" })).data : null;
   const title = path ? path.split("/").map(titleCase).join(" · ") : "Commerce overview";
@@ -37,6 +38,8 @@ export default async function RemoteAdminPage({ params, searchParams }: { params
 function ManagedContent({ path, data, options, isAdmin }: { path: string; data: Value; options: Obj | null; isAdmin: boolean }) {
   const object = asObject(data);
   if (path === "" && object) return <AdminDashboard data={object as unknown as Parameters<typeof AdminDashboard>[0]["data"]} />;
+  if (path === "reports" && object) return <ProductSalesReport data={object as unknown as Parameters<typeof ProductSalesReport>[0]["data"]} />;
+  if (path === "settings/tax" && object && isAdmin) return <div className="max-w-xl border bg-secondary/20 p-5"><div className="flex items-center justify-between"><div><h2 className="font-serif text-2xl">Global tax</h2><p className="mt-1 text-sm text-muted-foreground">Calculated by the backend and snapshotted on every order.</p></div><RecordEditor title="tax settings" endpoint="/admin/settings/tax" fields={[{ name: "enabled", label: "Enabled", type: "checkbox" }, { name: "name", label: "Tax name" }, { name: "rate", label: "Rate (%)", type: "number" }, select("mode", "Mode", ["INCLUSIVE", "EXCLUSIVE"])]} initial={{ enabled: Boolean(object.enabled), name: String(object.name), rate: Number(object.rate), mode: String(object.mode) }} /></div><ApiData value={data} compact /></div>;
   if (path.startsWith("products/") && object && options) return <ProductForm productId={String(object.id)} categories={optionList(options, "categories")} brands={optionList(options, "brands")} initial={productValues(object)} />;
   if ((path.startsWith("customers/") || path.startsWith("users/")) && object) return <div className="grid gap-6 xl:grid-cols-[1fr_22rem]"><ApiData value={data} /><aside className="h-fit border border-[#ded9cf] bg-[#faf8f3] p-5"><h2 className="mb-5 font-serif text-2xl">Account access</h2>{isAdmin ? <CustomerAccessControl id={String(object.id)} initialActive={Boolean(object.isActive)} initialRole={String(object.role)} initialVerified={Boolean(object.emailVerified)} /> : <p className="text-sm">Only ADMIN can change access.</p>}</aside></div>;
   if (path.startsWith("orders/") && object && isAdmin) return <div className="space-y-5"><RecordEditor title={String(object.orderNumber)} endpoint={`/admin/orders/${object.id}`} fields={[select("status", "Order status", ["PENDING_PAYMENT", "PAID", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "REFUNDED"]), select("paymentStatus", "Payment status", ["PENDING", "AUTHORIZED", "PAID", "FAILED", "EXPIRED", "CANCELLED", "REFUNDED", "PARTIALLY_REFUNDED"]), { name: "trackingNumber", label: "Tracking number" }]} initial={{ status: String(object.status), paymentStatus: String(object.paymentStatus), trackingNumber: object.trackingNumber ? String(object.trackingNumber) : "" }} /><ApiData value={data} /></div>;

@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const product = await findProductBySlug(slug);
   if (!product) return { title: "Product not found", robots: { index: false, follow: false } };
-  const description = `${product.name} by ${product.brand}. A ${product.category.toLowerCase()} piece from the IVORY curation.`;
+  const description = `${product.name} by ${product.brand} — ${new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(product.price)}. ${product.shortDescription ?? `A ${product.category.toLowerCase()} piece from the IVORY curation.`}`;
   return publicMetadata({ title: product.name, description, path: `/products/${product.slug}`, image: product.image });
 }
 
@@ -34,7 +34,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       <Container className="py-6 sm:py-8"><StorefrontBreadcrumb items={[{ label: "Home", href: "/" }, { label: "Products", href: "/products" }, { label: product.category, href: `/category/${product.categorySlug}` }, { label: product.name }]} /></Container>
       <Container className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(24rem,0.85fr)] lg:gap-14 xl:gap-20">
         <ProductGallery product={product} />
-        <ProductPurchasePanel product={product} details={details} />
+        <ProductPurchasePanel product={product} details={details} shareUrl={absoluteUrl(`/products/${product.slug}`)} />
       </Container>
 
       <Container className="mt-(--space-section)">
